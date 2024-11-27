@@ -1,0 +1,383 @@
+# Preface {.unnumbered}
+
+::: {.callout-note style="color: blue;"}
+#### This is work in progress
+
+- I have finished the first draft of all book chapters. I know that there are is a huge amount of typos and English error. I am planning to correct most of them in the second draft. But I do not know when I will have time for this, because I have my main goal --- to learn statistical concepts and computing practices --- achieved.
+
+What maybe is still missing from my learning perspective: A summary and collection of lesson learned including when to use which test and R package.
+
+Another plan is to revise the system of my callout boxes, because I have changed the systematic slightly in the middle of this project (approximately starting with chapter 7).
+
+But I do not know if I have time to meet this good resolutions, because I am planning to go the next step in my learning path. At the moment I am thinking what would be the next book I want to study intensive like this one. 
+:::
+
+
+::: my-watch-out
+::: my-watch-out-header
+WATCH OUT: This is my personal learning material and is therefore
+neither an accurate replication nor an authoritative textbook.
+:::
+
+::: my-watch-out-container
+I am writing this book as a text for others to read because that forces me to
+become explicit and explain all my learning outcomes more carefully.
+Please keep in mind that this text is not written by an expert but by a
+learner.
+
+Text passages with content I am already familiar I have skipped. Section
+of the original text where I needed more in-depth knowledge I have
+elaborated and added my own comments resulted from my personal research.
+
+Be warned! In spite of replicating most of the content this Quarto book
+may contain many mistakes. All the misapprehensions and errors are of
+course my own responsibility.
+:::
+:::
+
+## Content and Goals of this Book {.unnumbered}
+
+This Quarto book collects my personal notes, trials and exercises of
+[Statistics With R: Solving Problems Using Real-World
+Data](https://uk.sagepub.com/en-gb/eur/statistics-with-r/book253567) by
+Jenine K. Harris [@harris2020].
+
+This introductory textbook for Statistics with R has three outstanding
+features:
+
+### Data Wrangling
+
+The book applies real data sets with all their problems: missing data,
+inconsistent structure, not appropriate data types, not understandable
+labels, accompanying extensive code books etc. Data management is
+therefore a major part of the book, a subject often not taught. Many
+introductory textbooks work with already cleaned data and miss the
+necessity to guide students to bring messy data into an analyzable form.
+
+### Inclusion
+
+The author aims to support women and other underrepresented groups to
+pursue a data science career. By choosing a narrative style with three
+prototypical feminine characters the book discusses the approaches not
+only in details but also shows the effect of not optimal coding
+solutions. The solutions are developed step by step and each improvement
+replicates the code already written. These repetitions helps not only to
+compare the differences but shows that code has to be developed bit by
+bit, tested, improved, and tested again. Another interesting practice
+shown in the book is to try different approaches to the same problem and
+the re-usability of already written code. All these practices help to
+lower barriers and to facilitate learning statistics with R.
+
+### Compelling social science topics
+
+The three characters (Leslie a statistics student, who wants to learn R;
+Nancy an experienced data scientist and coding specialist; Kiara a data
+management guru worried especially about reproducibility) discuss
+real-world problem analysis from different angles. Every chapter starts
+with a short introduction about the background of the social problem the
+text is going to analyze. By introducing using publicly available data
+sources that have to be modified and cleaned one learns very important
+transferable skills. After working through the book it should be easy to
+work on his/her own research questions using public data sets.
+
+## Text passages
+
+### Quotes and personal comments
+
+My text consists mostly of quotes from the first edition of Harris’
+book. I converted my kindle book into a PDF file which I copied via the
+annotation system in [Zotero](https://www.zotero.org/) into my Quarto
+files.
+
+::: my-example
+::: my-example-header
+::: {#exm-preface-quote}
+: Quote
+:::
+:::
+
+::: my-example-container
+> “NA is a reserved “word” in R. In order to use NA, both letters must
+> be uppercase (Na or na does not work), and there can be no quotation
+> marks (R will treat “NA” as a character rather than a true missing
+> value)” ([Harris, 2020, p.
+> 121](zotero://select/groups/5254842/items/9N29QMJB))
+> ([pdf](zotero://open-pdf/groups/5254842/items/3NDRGBBW?page=121&annotation=XBYU53LG))
+:::
+:::
+
+@exm-preface-quote has links to my PDF and also to my annotation of the
+PDF. These links are a practical way for me to get the context of the
+quote. But as the linked PDF is saved locally at my hard disk these
+links do not work for you! (There is an option about [Zotero
+groups](https://www.zotero.org/groups) to share files, but the PDF is
+not free to use and so I can't offer this possibility.)
+
+Often I made minor editing (e.g., shorting the text) or put the content
+in my own wording. In this case I couldn't quote the text as it does not
+represent a specific annotation in my Zotero file. In this case I ended
+the paraphrase with `(Harris ibid.)`.
+
+In any case most of the text in this Quarto book is not mine but coming
+from different resources (Harris’ book, R help files, websites). Most of
+the time I have put my own personal notes into a notes box as shown in
+@exm-preface-note.
+
+::: my-example
+::: my-example-header
+::: {#exm-preface-note}
+: Personal note
+:::
+:::
+
+::: my-example-container
+::: my-note
+::: my-note-header
+::: {#cor-preface-note-example}
+: This is a personal note
+:::
+:::
+
+::: my-note-container
+In this kind of box I will write my personal thoughts and reflections.
+Usually this box will appear stand-alone (without the wrapping example
+box).
+:::
+:::
+:::
+:::
+
+### Glossary
+
+I am using the {**glossary**} package to create links to glossary
+entries.\]
+
+::: my-r-code
+::: my-r-code-header
+::: {#cnj-load-glossary}
+: Load glossary
+:::
+:::
+
+::: my-r-code-container
+
+
+```{r}
+#| label: load-glossary
+#| lst-label: lst-preface-load-glossary
+#| lst-cap: "Install and load the glossary package with the appropriate glossary.yml file"
+
+
+## 1. Install the glossary package:
+## https://debruine.github.io/glossary/
+
+library(glossary)
+
+## If you want to use my glossary.yml file:
+
+## 1. fork my repo
+##    https://github.com/petzi53/glossary-pb
+
+## 2. Download the `glossary.yml` file from
+##    https://github.com/petzi53/glossary-pb/blob/master/glossary.yml)
+
+## 3. Store the file on your hard disk
+##    and change the following path accordingly
+
+glossary::glossary_path("../glossary-pb/glossary.yml")
+
+```
+
+
+:::
+:::
+
+If you hover with your mouse over the double underlined links it opens
+an window with the appropriate glossary text. Try this example: `r glossary("Z-Score")`.
+
+::: my-watch-out
+::: my-watch-out-header
+WATCH OUT! Glossary text not authorized by the author of SWR
+:::
+
+::: my-watch-out-container
+::: {layout="[10, 30]" layout-valign="center"}
+![](https://debruine.github.io/glossary/logo.png)
+
+I have added many of the glossary entries when I was working through
+other books either taking the text passage of these books I was reading
+or via an internet recherche from other resources. I have added the
+source of glossary entry. Sometimes I have used abbreviation, but I need
+still to provide a key what this short references mean.
+:::
+
+Jenine Harris has collected her own glossary. Where ever it is suitable
+for my learning path I have added her entries into my dictionary. To
+apply the glossary into this text I have used the {**glossary**} package
+by [Lisa DeBruine](https://debruine.github.io/glossary/index.html).
+:::
+:::
+
+If you fork the [repository of this quarto
+book](https://github.com/petzi53/swr-harris) then the glossary will not
+work out of the box. Load down the `glossary.yml` file from [my
+glossary-pb GitHub
+repo](https://github.com/petzi53/glossary-pb/blob/master/glossary.yml),
+store it on your hard disk and change the path in the code chunk
+@lst-preface-load-glossary.
+
+In any case I am the only responsible person for this text, especially
+if I have used code from the resources wrongly or misunderstood a quoted
+text passage.
+
+## R Code and Datasets
+
+Harris provides R code and datasets via her [Github
+site](https://github.com/jenineharris/statistics-in-R-data-sets) but you
+can also download these files directly from the [Student
+Resources](https://edge.sagepub.com/harris1e/student-resources/datasets-and-r-code)
+of the publisher's SAGE website.
+
+Harris introduces and uses in the book [Google’s R Style
+Guide](https://google.github.io/styleguide/Rguide.html) with camelCase.
+The reference is pointing to a fork of the [Tidyverse Style
+Guide](https://style.tidyverse.org/). I am going to use underscore (`_`)
+or [snake case](https://en.wikipedia.org/wiki/Snake_case) to replace
+spaces as studies has shown that it is easier to read [@sharif2010]. But
+I will use the other Google modifications from the tidyverse style
+guide:
+
+-   Start the names of private functions with a dot.
+-   Don't use `base::attach()`.
+-   No right-hand assignments.
+-   Use explicit returns.
+-   Qualify namespace.
+
+Especially the last point (qualifying namespace) is important for my
+learning. Besides preventing conflicts with functions of identical names
+from different packages it helps to learn (or remember) which function
+belongs to which package. I think this justifies the small overhead and
+helps to make R code chunks self-sufficient. (No previous package
+loading, or library calls in the setup chunk.) To foster learning the
+relation between function and package I embrace the package name with
+curly brakes and format it in bold.
+
+I am using the package name also for the default installation of base R.
+This wouldn't be necessary but it helps me to understand where the base
+R functions come from. What follows is a list of base R packages of the
+system library included into every installation and attached (opened) by
+default:
+
+-   {**base**}: The R Base Package
+-   {**datsets**}: The R Datasets Package
+-   {**graphics**}: The R Graphics Package
+-   {**grDevices**}: The R Graphics Devices and Support for Colours and
+    Fonts
+-   {**methods**}: Formal Methods and Classes
+-   {**stats**}: The R Stats Package
+-   {**utils**}: The R Utils Package
+
+I am not using always the exact code snippets for my replications
+because I am not only replicating the code to see how it works but also
+to change the values of parameters to observe their influences.
+
+In "Statistics with R" there are all names of function arguments
+explicitly mentioned. This is also the case for function with just one
+argument, for instance
+`base::summary(object = <r object to summarize>)`. When it is clear then
+I will follow the advice from Hadley Wickham:
+
+> When you call a function, you typically omit the names of data
+> arguments, because they are used so commonly. If you override the
+> default value of an argument, use the full name ([tidyverse style
+> guide](https://style.tidyverse.org/syntax.html)).
+
+For educational reasons Harris develops code step by step and replicates
+the complete code including the previous — already explained — snippets.
+In these cases I use tabs as an organizing structure so that one can see
+(and compare) the piecemeal development.
+
+## Resources
+
+::: {.my-resource}
+::: {.my-resource-header}
+:::::: {#lem-index-book-resources}
+: Resources used for this Quarto book
+::::::
+:::
+
+::: {.my-resource-container}
+-   [Statistics With
+    R](https://uk.sagepub.com/en-gb/eur/statistics-with-r/book253567):
+    Website
+-   [R Code](https://edge.sagepub.com/system/files/r_code_1.zip):
+    Download
+-   [Datasets](https://edge.sagepub.com/system/files/datasets_7.zip):
+    Download
+:::
+:::
+
+## Packages introduced in the preface
+
+:::::{.my-resource}
+:::{.my-resource-header}
+:::::: {#lem-chap-index-glossary}
+glossary: Glossaries for Markdown and Quarto Documents
+::::::
+:::
+::::{.my-resource-container}
+
+***
+
+::: {#pak-glossary}
+
+***
+
+{**glossary**}: [Glossaries for Markdown and Quarto Documents](https://debruine.github.io/glossary/)
+
+Add glossaries to markdown and quarto documents by tagging individual words. Definitions can be provided inline or in a separate file.
+
+::: {layout="[10, 30]" layout-valign="center"}
+![](img/logoi/logo-glossary-min.png){width="176"}
+
+
+There is a lot of necessary jargon to learn for coding. The goal of glossary is to provide a lightweight solution for making glossaries in educational materials written in quarto or R Markdown. This package provides functions to link terms in text to their definitions in an external glossary file, as well as create a glossary table of all linked terms at the end of a section.
+
+:::
+
+
+{**glossary**}: A Package to Create Glossaries for Markdown and Quarto Documents
+:::
+
+
+***
+::::
+:::::
+
+## Glossary
+
+```{r}
+#| label: glossary-table
+#| echo: false
+
+glossary_table()
+```
+
+------------------------------------------------------------------------
+
+## Session Info {.unnumbered}
+
+::: my-r-code
+::: my-r-code-header
+Session Info
+:::
+
+::: my-r-code-container
+```{r}
+#| label: session-info
+
+sessioninfo::session_info()
+```
+:::
+:::
+
