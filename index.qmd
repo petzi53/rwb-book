@@ -38,56 +38,18 @@ course my own responsibility.
 ## Content and Goals of this Book {.unnumbered}
 
 This Quarto book collects my personal notes, trials and exercises of
-[Statistics With R: Solving Problems Using Real-World
-Data](https://uk.sagepub.com/en-gb/eur/statistics-with-r/book253567) by
-Jenine K. Harris [@harris2020].
+[BOOK NAME](URL) by
+NAME OF AUTHOR [CITATION].
 
-This introductory textbook for Statistics with R has three outstanding
-features:
+DESCRIPTION OF THE BOOK AND WHY IT IS WORTH FOR A QUARTO BOOK
 
-### Data Wrangling
 
-The book applies real data sets with all their problems: missing data,
-inconsistent structure, not appropriate data types, not understandable
-labels, accompanying extensive code books etc. Data management is
-therefore a major part of the book, a subject often not taught. Many
-introductory textbooks work with already cleaned data and miss the
-necessity to guide students to bring messy data into an analyzable form.
-
-### Inclusion
-
-The author aims to support women and other underrepresented groups to
-pursue a data science career. By choosing a narrative style with three
-prototypical feminine characters the book discusses the approaches not
-only in details but also shows the effect of not optimal coding
-solutions. The solutions are developed step by step and each improvement
-replicates the code already written. These repetitions helps not only to
-compare the differences but shows that code has to be developed bit by
-bit, tested, improved, and tested again. Another interesting practice
-shown in the book is to try different approaches to the same problem and
-the re-usability of already written code. All these practices help to
-lower barriers and to facilitate learning statistics with R.
-
-### Compelling social science topics
-
-The three characters (Leslie a statistics student, who wants to learn R;
-Nancy an experienced data scientist and coding specialist; Kiara a data
-management guru worried especially about reproducibility) discuss
-real-world problem analysis from different angles. Every chapter starts
-with a short introduction about the background of the social problem the
-text is going to analyze. By introducing using publicly available data
-sources that have to be modified and cleaned one learns very important
-transferable skills. After working through the book it should be easy to
-work on his/her own research questions using public data sets.
 
 ## Text passages
 
 ### Quotes and personal comments
 
-My text consists mostly of quotes from the first edition of Harris’
-book. I converted my kindle book into a PDF file which I copied via the
-annotation system in [Zotero](https://www.zotero.org/) into my Quarto
-files.
+My text consists mostly of quotes from the [BOOK NAME].
 
 ::: my-example
 ::: my-example-header
@@ -97,31 +59,17 @@ files.
 :::
 
 ::: my-example-container
-> “NA is a reserved “word” in R. In order to use NA, both letters must
-> be uppercase (Na or na does not work), and there can be no quotation
-> marks (R will treat “NA” as a character rather than a true missing
-> value)” ([Harris, 2020, p.
-> 121](zotero://select/groups/5254842/items/9N29QMJB))
-> ([pdf](zotero://open-pdf/groups/5254842/items/3NDRGBBW?page=121&annotation=XBYU53LG))
+EXAMPLE QUOTE
 :::
 :::
-
-@exm-preface-quote has links to my PDF and also to my annotation of the
-PDF. These links are a practical way for me to get the context of the
-quote. But as the linked PDF is saved locally at my hard disk these
-links do not work for you! (There is an option about [Zotero
-groups](https://www.zotero.org/groups) to share files, but the PDF is
-not free to use and so I can't offer this possibility.)
 
 Often I made minor editing (e.g., shorting the text) or put the content
 in my own wording. In this case I couldn't quote the text as it does not
-represent a specific annotation in my Zotero file. In this case I ended
-the paraphrase with `(Harris ibid.)`.
+represent a specific text passage. In this case I end
+the paraphrase with `(AUTOR NAME ibid.)`.
 
 In any case most of the text in this Quarto book is not mine but coming
-from different resources (Harris’ book, R help files, websites). Most of
-the time I have put my own personal notes into a notes box as shown in
-@exm-preface-note.
+from different resources. 
 
 ::: my-example
 ::: my-example-header
