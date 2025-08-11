@@ -3,15 +3,15 @@ project:
   pre-render: R/helper.R
 
 book:
-  title: "Inequality in Austria"
+  title: "Reporters Without Borders (RWB)"
   author: "Peter Baumgartner"
   date: last-modified
   date-format: YYYY-MM-DD HH:mm
   favicon: "img/favicon_io/apple-touch-icon.png"
-  site-url: https://bookdown.org/pbaumgartner/REPO-NAME/
-  repo-url: https://github.com/petzi53/REPO-NAME
+  site-url: https://bookdown.org/pbaumgartner/rwb-book/
+  repo-url: https://github.com/petzi53/rwb-book
   repo-branch: master
-  repo-actions: [edit, issue]
+  repo-actions: [edit, issue, source]
   page-navigation: true
 
   chapters:

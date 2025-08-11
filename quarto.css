@@ -62,29 +62,30 @@ iframe {
 .my-assessment-container {
   padding-top: 5px;
   padding-left: 10px;
+  padding-right: 10px;
   color: black;
   background-color: white;
   border-bottom-right-radius: 10px;
 }
 
 
+/* ##############  MY - Checkbox unnumbered / ToDo  ############# */
 
-/* ##############   Checklist / ToDo  ############# */
 
-.my-checklist {
+.my-check {
   margin: 1em 0;
-  border: 2px solid #838B8B;  /* azure4 */
+  border: 2px solid #838B8B;
   border-left: 10px solid #838B8B;
   border-radius: 10px;
 }
 
-.my-checklist-header {
+.my-check-header {
   margin-left: 0;
   padding-left:  60px;
   padding-top:  15px;
   padding-bottom: 0.1em;
   color: black;
-  background-color: #E0EEEE; /* azure2 */
+  background-color: #98F5FF; /* cadetblue 1 */
   border-top-right-radius: 10px;
   font-size: 1em;
   font-weight: bold;
@@ -94,13 +95,76 @@ iframe {
   background-image: url("img/icons8/checklist-80.png");
 }
 
-.my-checklist-container {
+.my-check-container {
   padding-top: 5px;
   padding-left: 10px;
+  padding-right: 10px;
   color: black;
   background-color: white;
   border-bottom-right-radius: 10px;
 }
+
+
+
+
+
+
+/* ##############  NUM — Numbered checklist / ToDo  ############# */
+
+
+
+.num-check {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    border-radius: .5rem;
+    border-left: solid #838B8B .65rem; /* azure 4 */
+    border-right: solid 2px #838B8B;
+    border-top: solid 2px #838B8B;
+    border-bottom: solid 2px #838B8B;
+    border-left-color: #838B8B !important;
+}
+
+.num-check-icon {
+    height: 2rem;
+    width: 2rem;
+    display: inline-block;
+    content: "";
+    background-repeat: no-repeat;
+    background-size: 2rem 2rem;
+    margin-top: -.2rem;
+    padding-right: 1.5rem;
+    background-image: url("img/icons8/checklist-80.png");
+}
+
+.num-check-header {
+    margin-bottom: 0.5em;
+    padding-top: 1em;
+    border-bottom: none;
+    font-weight: 600;
+    opacity: 85%;
+    font-size: 1em;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    display: flex;
+    color: #6d7a86;
+    background-color: #98F5FF; /* cadetblue 1 */
+    height: 3.5em;
+    overflow: hidden;
+}
+
+.num-check-body {
+    font-size: 1rem;
+    font-weight: 400;
+    padding-right: 0.5em;
+}
+
+.num-check-body > :last-child {
+    padding-bottom: 0.5rem;
+    margin-bottom: 0;
+    padding-left: 0.5em;
+}
+
+
 
 
 /* ############## Code Collection ############ */
@@ -133,6 +197,7 @@ iframe {
 .my-code-collection-container {
   padding-top: 5px;
   padding-left: 10px;
+  padding-right: 10px;
   color: black;
   background-color: white;
   border-bottom-right-radius: 10px;
@@ -168,6 +233,7 @@ iframe {
 .my-example-container {
   padding-top: 5px;
   padding-left: 10px;
+  padding-right: 10px;
   color: black;
   background-color: white;
   border-bottom-right-radius: 10px;
@@ -204,6 +270,7 @@ iframe {
 .my-definition-container {
   padding-top: 5px;
   padding-left: 10px;
+  padding-right: 10px;
   color: black;
   background-color: white;
   border-bottom-right-radius: 10px;
@@ -240,6 +307,7 @@ iframe {
 .my-example-container {
   padding-top: 5px;
   padding-left: 10px;
+  padding-right: 10px;
   color: black;
   background-color: white;
   border-bottom-right-radius: 10px;
@@ -273,6 +341,7 @@ iframe {
 .my-exercise-container {
   padding-top: 5px;
   padding-left: 10px;
+  padding-right: 10px;
   color: black;
   background-color: white;
   border-bottom-right-radius: 10px;
@@ -307,6 +376,7 @@ iframe {
 .my-experiment-container {
   padding-top: 5px;
   padding-left: 10px;
+  padding-right: 10px;
   color: black;
   background-color: white;
   border-bottom-right-radius: 10px;
@@ -340,6 +410,7 @@ iframe {
 .my-important-container {
   padding-top: 5px;
   padding-left: 10px;
+  padding-right: 10px;
   color: black;
   background-color: white;
   border-bottom-right-radius: 10px;
@@ -374,6 +445,7 @@ iframe {
 .my-objectives-container {
   padding-top: 5px;
   padding-left: 10px;
+  padding-right: 10px;
   color: black;
   background-color: white;
   border-bottom-right-radius: 10px;
@@ -408,19 +480,23 @@ iframe {
 .my-package-container {
   padding-top: 5px;
   padding-left: 10px;
+  padding-right: 10px;
   color: black;
   background-color: white;
   border-bottom-right-radius: 10px;
 }
 
-.my-num-packagebox {
+/*  ##########  numbered packagebox ############# */
+
+
+.my-packagebox {
   margin: 1em 0;
   border: 2px solid #8B668B;
   border-left: 10px solid #8B668B;
   border-radius: 10px;
 }
 
-.my-num-packagebox-header {
+.my-packagebox-header {
   margin-left: 0;
   padding-left:  60px;
   padding-top:  15px;
@@ -436,13 +512,15 @@ iframe {
   background-image: url("img/icons8/package-48.png");
 }
 
-.my-num-packagebox-container {
+.my-packagebox-container {
   padding-top: 5px;
   padding-left: 10px;
+  padding-right: 10px;
   color: black;
   background-color: white;
   border-bottom-right-radius: 10px;
 }
+
 
 
 /* ##############   Procedure   ############# */
@@ -473,6 +551,7 @@ iframe {
 .my-procedure-container {
   padding-top: 5px;
   padding-left: 10px;
+  padding-right: 10px;
   color: black;
   background-color: white;
   border-bottom-right-radius: 10px;
@@ -508,6 +587,7 @@ iframe {
 .my-remark-container {
   padding-top: 5px;
   padding-left: 10px;
+  padding-right: 10px;
   color: black;
   background-color: white;
   border-bottom-right-radius: 10px;
@@ -542,6 +622,7 @@ iframe {
 .my-r-code-container {
   padding-top: 5px;
   padding-left: 10px;
+  padding-right: 10px;
   color: black;
   background-color: white;
   border-bottom-right-radius: 10px;
@@ -574,8 +655,9 @@ iframe {
 }
 
 .my-resource-container {
-  padding-top: 5px;
+  padding-top: 15px;
   padding-left: 10px;
+  padding-right: 10px;
   color: black;
   background-color: white;
   border-bottom-right-radius: 10px;
@@ -610,6 +692,7 @@ iframe {
 .my-solution-container {
   padding-top: 5px;
   padding-left: 10px;
+  padding-right: 10px;
   color: black;
   background-color: white;
   border-bottom-right-radius: 10px;
@@ -645,6 +728,7 @@ iframe {
 .my-tip-container {
   padding-top: 5px;
   padding-left: 10px;
+  padding-right: 10px;
   color: black;
   background-color: white;
   border-bottom-right-radius: 10px;
@@ -679,6 +763,7 @@ iframe {
 .my-theorem-container {
   padding-top: 5px;
   padding-left: 10px;
+  padding-right: 10px;
   color: black;
   background-color: white;
   border-bottom-right-radius: 10px;
@@ -712,6 +797,7 @@ iframe {
 .my-typo-container {
   padding-top: 5px;
   padding-left: 10px;
+  padding-right: 10px;
   color: black;
   background-color: white;
   border-bottom-right-radius: 10px;
@@ -719,16 +805,16 @@ iframe {
 
 
 
-/* ##############   Watch out!   ############# */
+/* ##############  MY — watch: Watch out!   ############# */
 
-.my-watch-out {
+.my-watch {
   margin: 1em 0;
   border: 2px solid #8B5A2B;
-  border-left: 10px solid #CD853F;
+  border-left: 10px solid #8B5A2B;
   border-radius: 10px;
 }
 
-.my-watch-out-header {
+.my-watch-header {
   margin-left: 0;
   padding-left:  60px;
   padding-top:  15px;
@@ -744,25 +830,85 @@ iframe {
   background-image: url("img/icons8/eyes-94.png");
 }
 
-.my-watch-out-container {
+.my-watch-container {
   padding-top: 5px;
   padding-left: 10px;
+  padding-right: 10px;
   color: black;
   background-color: white;
   border-bottom-right-radius: 10px;
 }
 
 
-/* ##############  Bullet List   ############# */
+/* ##############  NUM — watch: Watch out!   ############# */
 
-.my-bullet-list {
+
+.num-watch {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    border-radius: .5rem;
+    border-left: solid #8B5A2B .65rem; /* tan 4 */
+    border-right: solid 2px #8B5A2B;
+    border-top: solid 2px #8B5A2B;
+    border-bottom: solid 2px #8B5A2B;
+    border-left-color: #8B5A2B !important;
+}
+
+.num-watch-icon {
+    height: 2rem;
+    width: 2rem;
+    display: inline-block;
+    content: "";
+    background-repeat: no-repeat;
+    background-size: 2rem 2rem;
+    margin-top: -.2rem;
+    padding-right: 1.5rem;
+    background-image: url("img/icons8/eyes-94.png");
+}
+
+.num-watch-header {
+    margin-bottom: 0.5em;
+    padding-top: 1em;
+    border-bottom: none;
+    font-weight: 600;
+    opacity: 85%;
+    font-size: 1em;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    display: flex;
+    color: #6d7a86;
+    background-color: #fca500;
+    height: 3.5em;
+    overflow: hidden;
+}
+
+.num-watch-body {
+    font-size: 1rem;
+    font-weight: 400;
+    padding-right: 0.5em;
+}
+
+
+.num-watch-body > :last-child {
+    padding-bottom: 0.5rem;
+    margin-bottom: 0;
+    padding-left: 0.5em;
+}
+
+/* ############################# */
+
+
+
+/* ##############  MY —  Unnumbered Bullet List   ############# */
+
+.my-bullet {
   margin: 1em 0;
   border: 2px solid#008B00;
   border-left: 10px solid #008B00;
   border-radius: 10px;
 }
 
-.my-bullet-list-header {
+.my-bullet-header {
   margin-left: 0;
   padding-left:  60px;
   padding-top:  15px;
@@ -778,9 +924,10 @@ iframe {
   background-image: url("img/icons8/bullet-list.png");
 }
 
-.my-bullet-list-container {
+.my-bullet-container {
   padding-top: 5px;
   padding-left: 10px;
+  padding-right: 10px;
   color: black;
   background-color: white;
   border-bottom-right-radius: 10px;
@@ -883,21 +1030,23 @@ iframe {
 }
 
 
-/* #############    Bullet list      ################ */
+/* #############   Numbered Bullet list ################ */
 /* ############################################### */
 
-.my-bulletbox {
+
+
+.num-bullet {
     margin-top: 1em;
     margin-bottom: 1em;
-    border-radius: .25rem;
-    border-left: solid #acacac .3rem;
-    border-right: solid 1px silver;
-    border-top: solid 1px silver;
-    border-bottom: solid 1px silver;
+    border-radius: .5rem;
+    border-left: solid #acacac .65rem;
+    border-right: solid 2px silver;
+    border-top: solid 2px silver;
+    border-bottom: solid 2px silver;
     border-left-color: #008B00 !important;
 }
 
-.my-bulletbox-icon {
+.num-bullet-icon {
     height: 2rem;
     width: 2rem;
     display: inline-block;
@@ -909,9 +1058,9 @@ iframe {
     background-image: url("img/icons8/bullet-list.png");
 }
 
-.my-bulletbox-header {
+.num-bullet-header {
     margin-bottom: 0.5em;
-    padding-top: 0.3em;
+    padding-top: 1em;
     border-bottom: none;
     font-weight: 600;
     opacity: 85%;
@@ -921,21 +1070,23 @@ iframe {
     display: flex;
     color: #6d7a86;
     background-color: mediumspringgreen;
-    height: 2em;
+    height: 3.5em;
     overflow: hidden;
 }
 
-.my-bulletbox-body {
+.num-bullet-body {
     font-size: 1rem;
     font-weight: 400;
-    padding-left: 0.5em;
     padding-right: 0.5em;
 }
 
-.my-bulletbox-body > :last-child {
+
+.num-bullet-body > :last-child {
     padding-bottom: 0.5rem;
     margin-bottom: 0;
+    padding-left: 0.5em;
 }
+
 
 
 /* #############    Report      ################ */
