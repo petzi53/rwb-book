@@ -1,0 +1,83 @@
+# Prepare map data {#sec-chap023}
+
+
+```{r}
+#| label: setup
+#| results: hold
+#| include: false
+
+base::source(file = "R/helper.R")
+
+```
+
+
+::::: {#obj-chap023}
+:::: {.my-objectives}
+::: {.my-objectives-header}
+Objectives
+:::
+
+::: {.my-objectives-container}
+
+Here I want to prepare the raw dataset `raw_countries.rds` for joining with the RWB dataset `rwb.rds` to generate a `r glossary("choropleth")` map.
+
+
+:::
+::::
+:::::
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-023-prepare-map-data}
+: Prepare map data
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: prepare-map-data
+#| lst-label: lst-023-prepare-map-data
+#| lst-cap: Prepare map data to display the World Press Freedom Index
+#| eval: false
+
+
+library(dplyr, warn.conflicts = FALSE)
+
+raw_countries <- readRDS(paste0(here::here(), "/data/chap013/raw_countries.rds"))
+
+rwb_countries <- raw_countries |> 
+    select(iso_a3, name_long, c(93:96), geometry) |>
+    mutate(across(where(is.character), as.factor))
+```
+
+::::
+:::::
+
+
+## Glossary Entries {.unnumbered}
+
+```{r}
+#| label: glossary-table
+#| echo: false
+
+glossary_table()
+```
+
+------------------------------------------------------------------------
+
+## Session Info {.unnumbered}
+
+::: my-r-code
+::: my-r-code-header
+Session Info
+:::
+
+::: my-r-code-container
+```{r}
+#| label: session-info
+
+sessioninfo::session_info()
+```
+:::
+:::
+

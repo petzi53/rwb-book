@@ -9,6 +9,7 @@
 ## - my_scatter: create scatterplot with lm and loess curve
 ## - my_save_data_file: save data file
 ## - my_pkgs_dl: package downloads
+## - my_as_tibble_sf: Convert sf class to sf and tbl_df / tbl class
 ## - private_list_plotter: plot color list as a palette
 ## - private_t_col: transparent colors
 ##########################################################
@@ -325,6 +326,24 @@ my_pkgs_dl <-  function(pkgs, period = "last-week", days = 7) {
 }
 
 
+##### my_as_tibble_sf ###########################################
+# my_as_tibble_sf: Add `"tbl_df" "tbl"` to `"sf" "data.frame"`
+# Purpose:
+# Provide tibble functionality to sf class
+# Author: Peter Baumgartner
+# df = data.frame class sf to convert
+
+my_as_tibble_sf <- function(df) {
+
+  sf_class <- class(df)
+  if (sf_class[1] == "sf" & sf_class[2] == "data.frame") {
+    df <- tibble::as_tibble(df) |>
+      sf::st_as_sf()
+
+  } else {
+    return("failed")
+  }
+}
 
 
 ################################################################

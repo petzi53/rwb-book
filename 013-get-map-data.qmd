@@ -1,0 +1,93 @@
+# Get map data {#sec-chap013}
+
+
+```{r}
+#| label: setup
+#| results: hold
+#| include: false
+
+base::source(file = "R/helper.R")
+
+```
+
+
+::::: {#obj-chap013}
+:::: {.my-objectives}
+::: {.my-objectives-header}
+Objectives
+:::
+
+::: {.my-objectives-container}
+
+Download map data from `r glossary("Natural Earth")`.
+
+:::
+::::
+:::::
+
+With {**rnaturalearth**} there is a special package for downloading the geometries of all the countries in the world. I will take the medium scale ('50') of the 'physical' category. The data source is [Natural Earth](https://www.naturalearthdata.com/).
+
+I downloaded original data from Natural Earth with `rnaturalearth::ne_download()`  and compared it with the pre-downloaded data from the `rnaturalearth::ne_countries()`. It turned out that they are essentially identical. So I used the pre-downloaded data with the advantage that the resulting files have not converted from  `.shp` files to a {**sf**} file.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-013-get-map-data}
+: Get map data from Natural Earth
+::::::
+:::
+::::{.my-r-code-container}
+
+<center>**Run this code chunk manually if the file(s) still needs to be downloaded.**</center>
+
+::: {#lst-013-get-map-data}
+
+```{r}
+#| label: get-map-data
+#| eval: false
+
+raw_countries <- rnaturalearth::ne_countries(
+  scale = "medium",
+  type = "countries",
+  continent = NULL,
+  country = NULL,
+  geounit = NULL,
+  sovereignty = NULL,
+  returnclass = "sf"
+)
+
+my_save_data_file("chap013", raw_countries, "raw_countries.rds")
+
+```
+
+Get map data from Natural Earth
+::: 
+::::
+:::::
+
+## Glossary Entries {.unnumbered}
+
+```{r}
+#| label: glossary-table
+#| echo: false
+
+glossary_table()
+```
+
+------------------------------------------------------------------------
+
+## Session Info {.unnumbered}
+
+::: my-r-code
+::: my-r-code-header
+Session Info
+:::
+
+::: my-r-code-container
+```{r}
+#| label: session-info
+
+sessioninfo::session_info()
+```
+:::
+:::
+

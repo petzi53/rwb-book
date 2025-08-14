@@ -16,6 +16,13 @@ book:
 
   chapters:
     - index.qmd
+    - 011-get-rwb-data.qmd
+    - 012-get-m49-data.qmd
+    - 013-get-map-data.qmd
+    - 021-prepare-m49-data.qmd
+    - 022-prepare-rwb-data.qmd
+    - 023-prepare-map-data.qmd
+    - 031-rwb-2022-2025.qmd
 
 bibliography:
     - references.bib
@@ -42,6 +49,8 @@ format:
 filters:
    - include-code-files
    - section-bibliographies
+   - shinylive
+   - base64
 
 knitr:
   opts_chunk:
@@ -98,6 +107,9 @@ crossref:
     - kind: float
       reference-prefix: Collection Code
       key: col
+    - kind: float
+      reference-prefix: Watch-out
+      key: wat
 
 
 

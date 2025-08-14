@@ -1,0 +1,200 @@
+# Prepare RWB data {#sec-chap022}
+
+
+```{r}
+#| label: setup
+#| results: hold
+#| include: false
+
+base::source(file = "R/helper.R")
+base::source("R/prepare-m49.R")
+
+```
+
+
+::::: {#obj-chap022}
+:::: {.my-objectives}
+::: {.my-objectives-header}
+Objectives
+:::
+
+
+::: {.my-objectives-container}
+
+To get operating datasets I need to clean and recode the RWB data. I will do this in three different batches:
+
+1. 2022-2025: @sec-022-rwb-new
+2. 2013-2021: @sec-022-rwb-old
+3. 2002-2012
+
+:::
+::::
+:::::
+
+
+## RWB data 2022-2025 {#sec-022-rwb-new}
+
+One disadvantage of the many different data files is that they have slightly different structures and coding singularities. They have not only different columns and column names, but also some important value issues:
+
+- The values are without decimal position. For instance instead of 80.52 the value is 8052.
+- Trailing zeros are not displayed. Instead of 80.50 the value is 805, or 80 instead of 80.00.
+- To distinguish ties in the latest year another figure is added as a (silent) comma position. Instead of 80.524 and 80.527 we have 80524 and 80527.
+- Some entries have stored accents as non UTF-8 characters.
+
+:::::{.my-procedure}
+:::{.my-procedure-header}
+:::::: {#prp-020-prepare-rwb-data1}
+: Prepare RWB data 2022-2025
+::::::
+:::
+::::{.my-procedure-container}
+
+Because of the sightly different data structures the following full procedure is not always applied. Sometimes a step is missing, sometimes an additional step is added.
+
+0. Load {**dplyr**} library without displaying warnings and the raw m49 data with it function
+1. Get dataset via parameter handover
+2. Clean column names: Convert all characters to lower letters and spaces to underscore.
+3. Shorten column names by deleting the "_context" part
+4. Join data with the recoded M49 dataset from @lst-021-prepare-m49
+5. Select English country names
+6. Rename column `year_n` to `year` and relocate it as first column of the dataset
+7. Call function `df_recoded()` to recode all six different scores:
+    - for values smaller than 100, smaller than 1000, bigger than 10000 (sequence is important!)
+    - create column with evaluation (situation) categories
+
+::::
+:::::
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-022-prepare-rwb-data-new}
+: Preparing the RWB datasets 2022-2025
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: prepare-rwb-data-new
+#| lst-label: lst-022-prepare-rwb-data-new
+#| lst-cap: Functions to prepare the RWB datasets 2022-2025
+#| eval: false
+
+library(dplyr, warn.conflicts = FALSE)
+m49 <- base::readRDS(paste0(here::here(), "/data/chap012/m49.rds"))
+
+rwb_new <- function(df) { 
+    df |>
+        janitor::clean_names() |>
+        rename_with(function(x){gsub("_context","", x)}) |>
+        left_join(m49_recoded(m49), "iso") |>
+        select(-c(country_fr, country_es:country_fa)) |>
+        relocate(year = year_n) |>
+        df_recoded(score) |>
+        df_recoded(political) |>
+        df_recoded(economic) |>
+        df_recoded(legal) |>
+        df_recoded(social) |>
+        df_recoded(safety)
+}
+
+
+df_recoded_new <- function(df, col_name) {
+    df |>
+        mutate(
+            "{{col_name}}" := if_else({{col_name}} < 100, {{col_name}} * 100, {{col_name}}),
+            "{{col_name}}" := if_else({{col_name}} < 1000, {{col_name}} * 10, {{col_name}}),
+            "{{col_name}}" := if_else({{col_name}} > 10000, round({{col_name}} / 10), {{col_name}}),
+            "{{col_name}}" := {{col_name}} / 100,
+            "{{col_name}}_situation" := case_when(
+                {{col_name}} >= 85 ~ "1. Good",
+                {{col_name}} >= 70 & {{col_name}} <= 84.99 ~ "2. Rather Good",
+                {{col_name}} >= 55 & {{col_name}} <= 69.99 ~ "3. Problematic",
+                {{col_name}} >= 40 & {{col_name}} <= 54.99 ~ "4. Difficult",
+                {{col_name}} <= 39.99 ~ "5. Very Serious"
+            )
+        ) |>
+        relocate(last_col(), .after = {{col_name}})
+}
+
+
+```
+
+::::
+:::::
+
+## RWB data 2013-2022 {#sec-022-rwb-old}
+
+The rationale for the recoding is very similar than for the period 2022 onwards.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-022-prepare-rwb-data-old}
+: Preparing the RWB datasets 2022-2025
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: prepare-rwb-data-old
+#| lst-label: lst-022-prepare-rwb-data-old
+#| lst-cap: Functions to prepare the RWB datasets 2013-2021
+#| eval: false
+
+library(dplyr, warn.conflicts = FALSE)
+m49 <- base::readRDS(paste0(here::here(), "/data/chap012/m49.rds"))
+
+rwb_old <- function(df) {
+    df |>
+        janitor::clean_names() |>
+        rename_with(function(x){gsub("_context","", x)}) |>
+        left_join(m49_recoded(m49), "iso") |>
+        select(-c(fr_country, es_country:fa_country)) |>
+        relocate(year = year_n) |>
+        df_recoded(score_n) |>
+        rename(country_en = en_country)
+}
+
+df_recoded_old <- function(df, col_name) {
+    df |>
+        mutate(
+            "{{col_name}}" := if_else({{col_name}} < 100, {{col_name}} * 100, {{col_name}}),
+            "{{col_name}}" := if_else({{col_name}} < 1000, {{col_name}} * 10, {{col_name}}),
+            "{{col_name}}" := if_else({{col_name}} > 10000, round({{col_name}} / 10), {{col_name}}),
+            "{{col_name}}" := {{col_name}} / 100,
+            "{{col_name}}_situation" := case_when(
+                {{col_name}} >= 85 ~ "1. Good",
+                {{col_name}} >= 75 & {{col_name}} <= 84.99 ~ "2. Rather Good",
+                {{col_name}} >= 65 & {{col_name}} <= 74.99 ~ "3. Problematic",
+                {{col_name}} >= 45 & {{col_name}} <= 64.99 ~ "4. Difficult",
+                {{col_name}} <= 44.99 ~ "5. Very Serious"
+            )
+        ) |>
+        relocate(last_col(), .after = {{col_name}})
+}
+
+
+```
+
+::::
+:::::
+
+
+::: {.callout-important #imp-022-r-script}
+The preparing code of the RWB datasets are collected copied into the "prepare-rwb.R" file.
+:::
+
+## Session Info {.unnumbered}
+
+::: my-r-code
+::: my-r-code-header
+Session Info
+:::
+
+::: my-r-code-container
+```{r}
+#| label: session-info
+
+sessioninfo::session_info()
+```
+:::
+:::
+

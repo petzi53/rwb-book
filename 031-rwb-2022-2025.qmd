@@ -1,0 +1,154 @@
+# RWB 2022-2025 {#sec-chap031}
+
+
+```{r}
+#| label: setup
+#| results: hold
+#| include: false
+
+base::source(file = "R/helper.R")
+base::source(file = "R/prepare-m49.R")
+base::source(file = "R/prepare-rwb.R")
+
+```
+
+
+::::: {#obj-chap031}
+:::: {.my-objectives}
+::: {.my-objectives-header}
+Objectives
+:::
+
+::: {.my-objectives-container}
+
+Generate the `rwb-new` dataset to work on.
+
+
+:::
+::::
+:::::
+
+I will start with the generation of the dataset for 2022-2025. `rwb-new` should work as my model for the displaying my first RWB world map.
+
+To get a full dataset for 2022 I will need to work on the 2021 data as well, because I have to compare for each year the score/rank differences with the previous year.
+
+Here now I have to pay attention the small differences between the various datasets. Therefore I have to work on each year separetely.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-031-generate-rwb-new}
+: Generate RWB dataset for 2022-2025
+::::::
+:::
+::::{.my-r-code-container}
+
+<center>**Run this code chunk manually if the file(s) still needs to be downloaded.**</center>
+
+```{r}
+#| label: generate-rwb-new
+#| lst-label: lst-031-generate-rwb-new
+#| lst-cap: Generate RWB dataset for 2022-2025
+#| eval: false
+
+
+library(dplyr, warn.conflicts = FALSE)
+
+m49 <-  readRDS(paste0(here::here(), "/data/chap012/m49.rds"))
+rsf2021 <- readRDS(paste0(here::here(), "/data/chap011/rsf2021.rds"))
+rsf2022 <- readRDS(paste0(here::here(), "/data/chap011/rsf2022.rds"))
+rsf2023 <- readRDS(paste0(here::here(), "/data/chap011/rsf2023.rds"))
+rsf2024 <- readRDS(paste0(here::here(), "/data/chap011/rsf2024.rds"))
+rsf2025 <- readRDS(paste0(here::here(), "/data/chap011/rsf2025.rds"))
+
+rwb2021 <- rwb_old(rsf2021)
+
+rwb2021_short <- rwb2021 |>
+    select(c(iso, score_n, score_n_situation)) |>
+    rename(
+        score_n_1 = score_n,
+        score_n_1_situation = score_n_situation
+        )
+
+rwb2022 <- rwb_new(rsf2022) |>
+    left_join(rwb2021_short, "iso") |>
+    mutate(
+        score_evolution = score - score_n_1
+    ) |>
+    relocate(score_n_1:score_evolution, .after = rank_evolution)
+
+rwb2023 <- rwb_new(rsf2023) |>
+    df_recoded_new(score_n_1) |>
+    mutate(score_evolution =
+               as.double(stringr::str_replace(score_evolution, ",", "."))
+    )
+
+
+rwb2024 <- rwb_new(rsf2024) |>
+    select(-situation) |>
+    df_recoded_new(score_n_1) |>
+    mutate(score_evolution =
+               as.double(stringr::str_replace(score_evolution, ",", "."))
+    )
+
+rwb2025 <- rsf2025 |>
+    rename(Score = `Score 2025`) |>
+    rwb_new() |>
+    mutate(
+        country_en = case_when(
+        stringr::str_detect(country_en, "d'Ivoire") ~ "Côte d'Ivoire",
+        stringr::str_detect(country_en, "rkiye") ~ "Türkiye",
+        .default = country_en
+    ),
+        zone = if_else(stringr::str_detect(zone, "riques"),
+                "Amériques", zone)
+    ) |>
+    mutate(score_evolution =
+               as.double(stringr::str_replace(score_evolution, ",", "."))
+    ) |>
+    df_recoded_new(score_n_1)
+
+
+
+rwb <- bind_rows(
+    rwb2022, rwb2023, rwb2024, rwb2025
+    ) |>
+    mutate(across(where(is.character), as.factor)) |> 
+    arrange(desc(year), desc(score))
+
+my_save_data_file("chap031", rwb, "rwb.rds")
+
+
+```
+
+::::
+:::::
+
+
+
+## Glossary Entries {.unnumbered}
+
+```{r}
+#| label: glossary-table
+#| echo: false
+
+glossary_table()
+```
+
+------------------------------------------------------------------------
+
+## Session Info {.unnumbered}
+
+::: my-r-code
+::: my-r-code-header
+Session Info
+:::
+
+::: my-r-code-container
+```{r}
+#| label: session-info
+
+sessioninfo::session_info()
+```
+:::
+:::
+

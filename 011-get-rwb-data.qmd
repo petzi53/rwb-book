@@ -1,0 +1,120 @@
+# Get RWB data {#sec-chap011}
+
+
+```{r}
+#| label: setup
+#| results: hold
+#| include: false
+
+base::source(file = "R/helper.R")
+
+```
+
+
+::::: {#obj-chap011}
+:::: {.my-objectives}
+::: {.my-objectives-header}
+Objectives
+:::
+
+::: {.my-objectives-container}
+
+Download datasets for all years from the [RWB website](https://rsf.org/en/index).
+
+
+:::
+::::
+:::::
+
+The first task is to download all datasets from the [RWB website](https://rsf.org/en/index).
+
+There is no place where I can get an integrated harmonized dataset. The only way I found out is to go to every year’s index and to use the button "Download this index". Fortunately the link stem and the structure of the file name is the same for all years.
+
+Example: **https://rsf.org/sites/default/files/import_classement/2025.csv**. 
+
+So I just have to change the year of the `r glossary("CSV")` file name.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-011-get-rwb-data}
+: Get RWB datasets
+::::::
+:::
+::::{.my-r-code-container}
+
+<center>**Run this code chunk manually if the file(s) still needs to be downloaded.**</center>
+
+::: {#lst-011-get-rwb-data}
+
+```{r}
+#| label: get-rwb-data
+#| eval: false
+
+url <- "https://rsf.org/sites/default/files/import_classement/"
+
+rsf_year <- function(year) {
+    rsf_name <- paste0(url, year, ".csv")
+    readr::read_delim(rsf_name,
+                      delim = ";", 
+                      escape_double = FALSE, 
+                      trim_ws = TRUE,
+                      show_col_types = FALSE)
+}
+
+
+my_year <- list(
+    "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010",
+    # 2011 is missing
+    "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020",
+    "2021", "2022", "2023", "2024", "2025")
+
+for (i in 1:length(my_year)) {
+    my_name <- paste0("rsf", my_year[[i]])
+    my_save_data_file("chap011", 
+                      assign(my_name,  rsf_year(my_year[[i]])), 
+                      paste0(my_name, ".rds")
+    )
+}
+
+
+
+
+```
+
+Download and store datasets from RWB website
+::: 
+
+<center>(*For this R code chunk is no output available*)</center>
+
+::::
+:::::
+
+The side effect of @lst-011-get-rwb-data is a collection of data files from 2002 to 2025 (2011 missing) with the structure of "rsf<year>.rds".
+
+## Glossary Entries {.unnumbered}
+
+```{r}
+#| label: glossary-table
+#| echo: false
+
+glossary_table()
+```
+
+------------------------------------------------------------------------
+
+## Session Info {.unnumbered}
+
+::: my-r-code
+::: my-r-code-header
+Session Info
+:::
+
+::: my-r-code-container
+```{r}
+#| label: session-info
+
+sessioninfo::session_info()
+```
+:::
+:::
+

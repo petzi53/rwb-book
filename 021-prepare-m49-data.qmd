@@ -1,0 +1,108 @@
+# Prepare M49 data {#sec-chap021}
+
+
+```{r}
+#| label: setup
+#| results: hold
+#| include: false
+
+base::source(file = "R/helper.R")
+
+```
+
+
+::::: {#obj-chap021}
+:::: {.my-objectives}
+::: {.my-objectives-header}
+Objectives
+:::
+
+
+::: {.my-objectives-container}
+
+In this chapter I will prepare the M49 dataset for my use case.
+:::
+::::
+:::::
+
+
+:::::{.my-procedure}
+:::{.my-procedure-header}
+:::::: {#prp-021-prepare-m49-data}
+: Prepare M49 dataset
+::::::
+:::
+::::{.my-procedure-container}
+
+1. Get raw data via parameter handover
+2. Clean column names: Convert all characters to lower letters and spaces to underscore
+3. Filter rows without Antarctica
+4. Substitute `NA`s in the column `intermediate_region_name` with the values from `sub_region_name`
+5. Select appropriate columns
+6. Shorten column names
+
+::::
+:::::
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-021-prepare-m49}
+: Preparing the M49 dataset for my use case
+::::::
+:::
+::::{.my-r-code-container}
+
+```{r}
+#| label: prepare-m49
+#| lst-label: lst-021-prepare-m49
+#| lst-cap: Function to prepare the M49 dataset for my use case
+#| eval: false
+
+
+## this function will be called from the preparing action of the RWB datasets
+## the code is copied into prepare-m49.R
+
+m49_recoded <- function(df) {
+    df |>                                                     # (1)
+        janitor::clean_names() |>                             # (2)
+        dplyr::filter(country_or_area != "Antarctica") |>     # (3)
+        dplyr::mutate(intermediate_region_name =              # (4)
+          base::ifelse(is.na(intermediate_region_name),       
+                   sub_region_name, intermediate_region_name) 
+        ) |>                                                  
+        dplyr::select(                                        # (5)
+            iso_alpha3_code,                                  
+            country_or_area,                                  
+            region_name,                                      
+            sub_region_name,                                  
+            intermediate_region_name                          
+        ) |>                                                  
+        dplyr::rename(                                        # (6)
+            iso = iso_alpha3_code,                            
+            name = country_or_area                            
+            ) |>                                              
+        dplyr::rename_with(function(x) {gsub("_name","",x)})  
+}
+```
+
+
+::::
+:::::
+
+
+## Session Info {.unnumbered}
+
+::: my-r-code
+::: my-r-code-header
+Session Info
+:::
+
+::: my-r-code-container
+```{r}
+#| label: session-info
+
+sessioninfo::session_info()
+```
+:::
+:::
+

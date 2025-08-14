@@ -1,0 +1,117 @@
+# Get M49 data {#sec-chap012}
+
+
+```{r}
+#| label: setup
+#| results: hold
+#| include: false
+
+base::source(file = "R/helper.R")
+
+```
+
+
+::::: {#obj-chap012}
+:::: {.my-objectives}
+::: {.my-objectives-header}
+Objectives
+:::
+
+::: {.my-objectives-container}
+
+To harmonize the RWB datasets with the names of the planned country geometries for the maps I need to download an official classification system. A detailed classification system expressively developed for statistical purposes is developed by the United Nations Statistics
+Division `r glossary("UNSD")` using the `r glossary("M49")` methodology.
+
+
+:::
+::::
+:::::
+
+
+M49 is officially called [Standard country or area codes for statistical use
+(M49)](https://unstats.un.org/unsd/methodology/m49/) and can be
+downloaded manually in different languages and formats (Copy into the
+clipboard, Excel or `r glossary("CSV")` from the [Overview
+page](https://unstats.un.org/unsd/methodology/m49/overview/). On the page "Overview" is
+no URL for an R script available, because triggering one of the buttons
+copies or downloads the data with the help of Javascript. So I had to download the file manually or to find another location where I could download it programmatically. 
+
+The M49 specification is included in the {**ISOcodes**} package. But I am using the official file because it has countries and regions together in a form where no big recoded is necessary. 
+
+I found with the `r glossary("OMNIKA")` DataStore [United Nations M49 Region Codes](https://omnika.org/datastore/datasets/un-m49-region-codes) an [external source for the UNSD-M49 country classification](https://github.com/omnika-datastore/unsd-m49-standard-area-codes). For security reason I checked the two files with `base::all.equal()` to determine if those two files are identical. Yes, they are!
+
+The UNSD M40 standard area codes are stored as Excel and CSV files. I download for reproducibility reason the CSV file.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-012-get-m49}
+: Get M49 classification system
+::::::
+:::
+::::{.my-r-code-container}
+
+<center>**Run this code chunk manually if the file(s) still needs to be downloaded.**</center>
+
+::: {#lst-012-get-m49}
+
+```{r}
+#| label: get-m49
+#| eval: false
+
+## download unsd-m49 file ############
+url_m49 <- "https://github.com/omnika-datastore/unsd-m49-standard-area-codes/raw/refs/heads/main/2022-09-24__CSV_UNSD_M49.csv"
+
+downloader::download(
+    url = url_m49,
+    destfile = "data/m49.csv"
+)
+
+
+## create R object ###############
+m49 <-
+    readr::read_delim(
+        file = "data/m49.csv",
+        delim = ";", 
+        escape_double = FALSE, 
+        trim_ws = TRUE,
+        show_col_types = FALSE
+    )
+
+my_save_data_file("chap012", m49, "m49.rds")
+```
+
+Download and store the M49 classification system 
+::: 
+
+<center>(*For this R code chunk is no output available*)</center>
+
+::::
+:::::
+
+## Glossary Entries {.unnumbered}
+
+```{r}
+#| label: glossary-table
+#| echo: false
+
+glossary_table()
+```
+
+------------------------------------------------------------------------
+
+## Session Info {.unnumbered}
+
+::: my-r-code
+::: my-r-code-header
+Session Info
+:::
+
+::: my-r-code-container
+```{r}
+#| label: session-info
+
+sessioninfo::session_info()
+```
+:::
+:::
+

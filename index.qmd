@@ -3,53 +3,185 @@
 ::: {.callout-note style="color: blue;"}
 #### This is work in progress
 
-XXX: I have finished XXX%. Currently I am working on Chapter XXX.
+I have finished approximately 5%. This is just a rough guess, derived from my @sec-project-plan.
+
+Currently I am working on plotting the map for the RWB datasets 2022-2025.
 
 :::
 
-::: my-watch-out
-::: my-watch-out-header
-WATCH OUT: This is my personal learning material and is therefore
-neither an accurate replication nor an authoritative textbook.
+## Content and Goals of this Book
+
+I am writing this book to learn how to develop a Shiny Dashboard. It is a practical project to support my understanding of Mastering Shiny [@wickham2021]. It was helpful that I have written down during reading [Mastering Shiny](https://mastering-shiny.org/index.html) personal notes in [Learning Shiny](https://bookdown.org/pbaumgartner/learning-shiny/). But this was mostly only a replication exercise. With this project I am trying to develop my practical skills in building Shiny apps.
+
+
+::: my-watch
+::: my-watch-header
+WATCH OUT: I am a learner not an expert
 :::
 
-::: my-watch-out-container
+::: my-watch-container
 I am writing this book as a text for others to read because that forces me to
-become explicit and explain all my learning outcomes more carefully.
+become explicit and explain all my considerations and my code lines more carefully.
 Please keep in mind that this text is not written by an expert but by a
 learner.
 
-Text passages with content I am already familiar I have skipped. Section
-of the original text where I needed more in-depth knowledge I have
-elaborated and added my own comments resulted from my personal research.
-
-Be warned! In spite of replicating most of the content this Quarto book
-may contain many mistakes. All the misapprehensions and errors are of
-course my own responsibility.
+I have some experience with data wrangling using the {**tidyverse**}. But it is important to stress that I have almost no experience with Shiny apps and much less with building an interactive Dashboard. At the moment (August 2025) I haven't read neither [Engineering Production-Grade Shiny Apps](https://engineering-shiny.org/index.html) [@fay-2021a] nor [Outstanding User Interfaces with Shiny](https://unleash-shiny.rinterface.com/) [@granjon2022]. So my theoretical and practical knowledge is very limited. Therefore this Quarto book my contain many mistakes. If you find misapprehensions, errors or just better ways to solve my intentions feel free to drop me a note in the [GitHub repo of this book](https://github.com/petzi53/rwb-book/issues/new).
 :::
 :::
 
-## Content and Goals of this Book {.unnumbered}
+## World Press Freedom Index
 
-This Quarto book collects my personal notes, trials and exercises of
-XXX[BOOK NAME](URL) by XXX: NAME OF AUTHOR [CITATION].
+I decided to develop a dashboard for the dataset on the World Press Freedom Index (`r glossary("WPFI")`) for this practical learning project. The WPFI was developed by [Reporters Without Borders](https://rsf.org/en/index) (`r glossary("RWB")`) (French: Reporters sans frontières) (RSF).
 
-XXX: DESCRIPTION OF THE BOOK AND WHY IT IS WORTH FOR A QUARTO BOOK
+> The World Press Freedom Index (WPFI) is an annual ranking of countries compiled and published by Reporters Without Borders (RSF) since 2002 based upon the non-governmental organization's own assessment of the countries' press freedom records in the previous year. It intends to reflect the degree of freedom that journalists, news organizations, and netizens have in each country, and the efforts made by authorities to respect this freedom. Reporters Without Borders notes that the WPFI only deals with press freedom and does not measure the quality of journalism in the countries it assesses, nor does it look at human rights violations in general. ([Wikipedia](https://en.wikipedia.org/wiki/World_Press_Freedom_Index))
+
+### Index construction has changed
+
+It is important to note that the questionnaire as well the method to construct the index has changed several times.
+
+- **From 2022-2012 (2011 is missing)**: The global index comprises the following components (see [Questionnaire for compiling the 2010 Press Freedom Index](https://rsf.org/sites/default/files/medias/file/2022/04/RSF_Questionnaire_2010_EN.pdf))
+    - Physical violence
+    - Number of journalists murdered, detained, physically attacked or threatened, and the role of authorities in this
+    - Indirect threats, harassment and access to information
+    - Censorship and self-censorship
+    - Control of media
+    - Judicial, business, and administrative pressure
+    - Internet and new media
+    - Are there any points not included in this questionnaire that might be relevant forassessing the press freedom situation in your country? Please mention them.
+- **From 2013-2021**: The global index comprises the following components (see [RSF SURVEY 2016](https://rsf.org/sites/default/files/medias/file/2022/04/RSF_Index_Questionnaire_2016_EN.pdf))
+    - Pluralism: Measures the degree to which opinions are represented in the media.
+    - Media independence: Measures the degree to which the media are able to function independently of sources of political, governmental, business and religious power and influence.
+    - Environment and self-censorship: Analyses the environment in which news and information providers operate.
+    - Legislative framework: Measures the impact of the legislative framework governing news and information activities.
+    - Transparency: Measures the transparency of the institutions and procedures that affect the production of news and information.
+    - Infrastructure: Measures the quality of the infrastructure that supports the production of news and information.
+    - Abuses: Measures the level of abuses and violence, based on data gathered about abuses and acts of violence against journalists and media during the period evaluated.
+- **From 2022 onwards**: The global index comprises the following components (see [World Press Freedom Index: Questionnaire 2022](https://rsf.org/sites/default/files/medias/file/2022/04/RSF_Index_Questionnaire_2022_EN.pdf)). This is a major overhaul using a questionnaire of 12 pages with 118 questions comprising five contextual components ([Details here](https://rsf.org/en/methodology-used-compiling-world-press-freedom-index-2025?year=2025&data_type=general)):
+    - Political context (35 questions)
+    - Legal framework (26 questions)
+    - Economic context (26 questions)
+    - Sociocultural context (22 questions)
+    - Safety (15 questions = 2/3 of the safety score and 1 question of abuse = 1/3 of the safety score)
+
+### Scores comparison
+
+- The scores from 2002 - 2012 are not explicated, the unlimited range starts from 0 --- the best --- to over 100 --- 115.5 in 2009 (Eritrea) is the worst. 
+- From 2013 onwards the scores are limited from 100 (the ideal country) to 0 (the imaginable worst country) points.
+- From 2022 onwards exist different criteria where each component itself has a range from 100 to 0.
+
+These three score methods are not comparable. One way to compare the different years from 2002-2025 is the rank, with the caveat that in the earlier year there are many ties. Another one could be elicited by the five categories using map colors. Starting with 2005 there are colored maps with five colors. But a detailed inspection reveals that the scores and map colors does not match.  
+
+Although the score ranges between 2013 and 2025 change with 2021 onwards the content of the categories remain constant. We could therefore compare these countries not only with their global score but also in five sub-categories:
+
+#### 2022-2025
+
+- [85 - 100 points] : good (green)
+- [70 - 85 points[  : satisfactory (yellow)
+- [55 - 70 points[  : problematic (light orange)
+- [40 - 55 points[  : difficult (dark orange)
+- [0 - 40 points[   : very serious (dark red)
+
+#### 2013-2021
+
+- [85 ; 100 points] : good (green)
+- [75 ; 85 points[  : satisfactory (yellow)
+- [65 ; 75 points[  : problematic (light orange)
+- [45 ; 65 points[  : difficult (dark orange)
+- [0 ; 45 points[   : very serious (dark red)
+
+It is symptomatic that the borders for the different categories have been relaxed from 2022 onwards. We will have a look on these differences later to judge if the general distribution of scores has changed (worsened), so that the adaption was made to get similar numbers of countries in each category. But it could also the case that the different sub-criteria after 2021 required this slight adaption. Another reason could be to set the four upper categories to the same range (all have 15 points), whereas they differ between 2013-2021 (20, 10, 10, 15 points).
+
+Although the index construction from 2013 to today has changed in 2022 we can compare not only the ranks but also the amount of points as all these years have the same scale of 0-100 points.
+
+## Project plan {#sec-project-plan}
+
+I take as a model for my practical project the [Word Happiness Report](https://data.worldhappiness.report/map) (`r glossary("WHR")`) dashboard. I cannot plan the details but my dashboar should contain the following main visualizations:
+
+### Maps
+
+The start of the dashboard should be a map from the last year where data are available. This is currently 2025. It should be a map quite similar as it is in the original website at <https://rsf.org/en/index>. As in the original it should also reveal country information whenever the mouse is hovering over a specific country. 
+
+The differences to the start view are:
+
+- A legend that explains the different colors
+- A filter that shows different years and regions
+- A button to download the image with the legend and creative comms copyright information (CC-BY-SA 4.0)
+- At the sidebar you can select which variable to show: Global score (start), political, economic, legal, social, and safety.
+
+To compare with my WHR model see the [WHR Map](https://data.worldhappiness.report/map).
+
+### Charts 
+
+(Looking for a better name, as the ranking graphics are also charts.)
+
+The charts should show the development by year for the
+
+- global score: Data 2013-2025
+- five components: 2022-2025
+
+Additionally you can 
+
+- select a country or regional category to add to the chart
+- deselect a country or regional category
+- When a region was selected then there should a possibility to show a list of the countries for every region.
+- Additionally there should also the possibility to show the mean/median by country or better by population of the region. 
+
+I am thinking of [Connected Scatterplots](https://r-graph-gallery.com/connected-scatterplot.html) as graphical device to show the development over the years.
+
+To compare with my WHR model see the [WHR Chart](https://data.worldhappiness.report/chart).
+
+### Rankings
+
+The charts should show the ranking development of countries / regions by year for the
+
+- global score: Data 2002-2025
+- five components: Data 2022-2025
+
+I am thinking of [Lollipop Plots](https://www.data-to-viz.com/graph/lollipop.html) and/or [Bump Charts](https://r-graph-gallery.com/408-basic-bump-plot.html) as a graphical devices to show the development of ranks.
+
+Similar to the charts you should also be able to
+
+- select a country or regional category to add to the chart
+- deselect a country or regional category
+- When a region was selected then there should a possibility to show a list of the countries for every region.
+
+My WHR model has only a list of ranked countries without any visualization.
 
 
+### Countries
 
-## Text passages
+Choosing one country or regions displays a summary of all available data for this item. This could be:
 
-### Quotes and personal comments
+- Evolution of the six different scores over the years with a Connected Scatterplot.
+- Evolution of the rankings for the six different scores over the years with a Bump Chart.
+- Additional information about the country / region displayed with value boxes and more.
 
-My text consists mostly of quotes from the XXX[BOOK NAME]. Sometimes I have them changed slightly to adpat it to the flow onf my notes. But I have not referenced the poistion of the (semi)quotes in the book. As I am generally follow the book's outline using the same text for headers, it should be clear where to find the quotes. 
+### Realization
 
-This means that most of the text in this Quarto book is not mine but comes
-from different resources. 
+I will apply the intermediate results of my code development parallel the [Shiny package RSF](https://github.com/petzi53/rsf) (Reporters sans frontières). After some research I learned that the {**bslib**} package is the most modern package fpr dashboard development. I looked into
 
-My personal comments should be clear because most of the times it is a reflection about the book and my experiences with it.
+- [{**shinydashboard**}](https://rstudio.github.io/shinydashboard/): 
+    - Approx. 1.500 downloads per day 
+    - Very easy to use, but dependent on an [old version 3 Bootstrap](https://getbootstrap.com/docs/3.4/).
+- [{**shinydashboardplus**}](https://rinterface.github.io/shinydashboardPlus/)
+    - Not used anymore
+    - Uses like {**shinydashboard**) the [AdminLTE](https://github.com/ColorlibHQ/AdminLTE) [template](https://adminlte.io/themes/v3/)
+    - Provides some additional features to {**shinydashboard**}
+- [{**bs4Dash**}](https://bs4dash.rinterface.com/index.html) 
+    - Approx. 150 downloads per day
+    - Uses like {**shinydashboard**) the [AdminLTE](https://github.com/ColorlibHQ/AdminLTE) [template](https://adminlte.io/themes/v3/)
+    - The biggest difference to {**bs4Dash**} is the dependence on [Bootstrap 4](https://getbootstrap.com/docs/4.6/getting-started/introduction/).
+    - Provides some additional features to {**shinydashboard**}
+- [{**flexdashboard**}](https://pkgs.rstudio.com/flexdashboard/)
+    - Approx. 400 downloads per day
+    - Not using Shiny but creates dashboards with R Markdown
+- [{**bslib**}](https://rstudio.github.io/bslib/)
+    - Approx. 27000 (!) downloads per day
+    - Uses modern versions of [Bootstrap](https://getbootstrap.com/) V5 and [Bootswatch](https://bootswatch.com/)
+    
+{**bslib**} is now the recommendation for Shiny dashboards. See [Towards easy, delightful, and customizable dashboards in Shiny for R with {bslib}](https://shiny.posit.co/blog/posts/bslib-dashboards/) and [{bslib} Dashboardes](https://rstudio.github.io/bslib/articles/dashboards/index.html). The "Mastering Shiny" book does not use {**bslib**} for its example code. Although I had experimented a little bit with {**bslib**} I still have to learn to apply the {**bslib**} package.
 
-
+An interesting intermediate solution could also trying to apply {**flexdashboard**} to get a first flavor of my results. I don't know if this is a viable option because I have never used {**flexdashboard**} so far.
 
 ### Glossary
 
@@ -97,14 +229,14 @@ glossary::glossary_path("../glossary-pb/glossary.yml")
 :::
 
 If you hover with your mouse over the double underlined links it opens
-an window with the appropriate glossary text. Try this example: `r glossary("Z-Score")`.
+an window with the appropriate glossary text. Try this example: `r glossary("RWB")`.
 
-::: my-watch-out
-::: my-watch-out-header
+::: my-watch
+::: my-watch-header
 WATCH OUT! Glossary is my private learning vehicle
 :::
 
-::: my-watch-out-container
+::: my-watch-container
 ::: {layout="[10, 30]" layout-valign="center"}
 ![](https://debruine.github.io/glossary/logo.png)
 
@@ -117,7 +249,7 @@ source of the glossary entry as an abbreviation or as an URL. Many definitions w
 :::
 :::
 
-If you fork the XXX: [REPO OF THIS BOOK(URL OF THIS BOOK] then the glossary will not
+If you fork the [repo of this book](https://github.com/petzi53/rwb-book/) then the glossary will not
 work out of the box. Load down the `glossary.yml` file from [my
 glossary-pb GitHub
 repo](https://github.com/petzi53/glossary-pb/blob/master/glossary.yml),
@@ -125,7 +257,7 @@ store it on your hard disk and change the path in the code chunk
 @lst-preface-load-glossary accordingly.
 
 In any case I am the only responsible person for the glossary text, especially
-if I have used text from other resources wrongly. Again: The main purpose of the glossary is to support my persponal learning venture.
+if I have used text from other resources wrongly. Again: The main purpose of the glossary is to support my personal learning venture.
 
 ## R Code and Datasets
 
@@ -159,6 +291,8 @@ When it is clear then I will follow the advice from Hadley Wickham:
 > default value of an argument, use the full name ([tidyverse style
 > guide](https://style.tidyverse.org/syntax.html)).
 
+I am not using [code annotation](https://quarto.org/docs/authoring/code-annotation.html) because it disables code linking and does not show up correctly in the pop-up window generated with listing cross references. 
+
 ## Annex
 
 In some of my book notes I provide files in the annex. They contain experiments not directly in line with the book but inspired by my reading of the book. 
@@ -166,12 +300,12 @@ In some of my book notes I provide files in the annex. They contain experiments 
 Often you will also find an annex file with a standardized short description of all my used packages, sometimes added with notes about my personal experiences with this package. An example of the standardized format gives you the following @sec-glossary-package.
 
 ### Glossary package {#sec-glossary-package}
-:::::: my-num-packagebox
-::: my-num-packagebox-header
+:::::: my-packagebox
+::: my-packagebox-header
 Package Profile: glossary
 :::
 
-:::: my-num-packagebox-container
+:::: my-packagebox-container
 <center>{**glossary**}: [Glossaries for Markdown and Quarto Documents](https://debruine.github.io/glossary/) [@glossary]</center>
 
 ------------------------------------------------------------------------
