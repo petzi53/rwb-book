@@ -72,19 +72,22 @@ m49_recoded <- function(df) {
         ) |>                                                  
         dplyr::select(                                        # (5)
             iso_alpha3_code,                                  
-            country_or_area,                                  
             region_name,                                      
             sub_region_name,                                  
             intermediate_region_name                          
         ) |>                                                  
-        dplyr::rename(                                        # (6)
-            iso = iso_alpha3_code,                            
-            name = country_or_area                            
-            ) |>                                              
+        dplyr::rename(iso = iso_alpha3_code) |>               # (6) 
         dplyr::rename_with(function(x) {gsub("_name","",x)})  
 }
+
+m49_clean <- m49_recoded(readRDS(paste0(here::here(), "/data/chap012/m49_raw.rds")))
+
+my_save_data_file("chap021", m49_clean, "m49_clean.rds")
 ```
 
+***
+
+<center>(*For this R code chunk is no output available*)</center>
 
 ::::
 :::::

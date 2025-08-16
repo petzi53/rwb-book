@@ -1,12 +1,13 @@
 
 library(dplyr, warn.conflicts = FALSE)
-base::source(paste0(here::here(), "/R/prepare-m49.R"))
+
+m49_clean <- base::readRDS(paste0(here::here(), "/data/chap021/m49_clean.rds"))
 
 rwb_new <- function(df) {
     df |>
         janitor::clean_names() |>
         rename_with(function(x){gsub("_context","", x)}) |>
-        left_join(m49_recoded(m49), "iso") |>
+        left_join(m49_clean, "iso") |>
         select(-c(country_fr, country_es:country_fa)) |>
         relocate(year = year_n) |>
         df_recoded_new(score) |>
@@ -40,7 +41,7 @@ rwb_old <- function(df) {
     df |>
         janitor::clean_names() |>
         rename_with(function(x){gsub("_context","", x)}) |>
-        left_join(m49_recoded(m49), "iso") |>
+        left_join(m49_clean, "iso") |>
         select(-c(fr_country, es_country:fa_country)) |>
         relocate(year = year_n) |>
         df_recoded_old(score_n) |>

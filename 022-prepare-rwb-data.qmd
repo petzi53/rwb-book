@@ -80,13 +80,13 @@ Because of the sightly different data structures the following full procedure is
 #| eval: false
 
 library(dplyr, warn.conflicts = FALSE)
-m49 <- base::readRDS(paste0(here::here(), "/data/chap012/m49.rds"))
+m49_clean <- base::readRDS(paste0(here::here(), "/data/chap021/m49_clean.rds"))
 
 rwb_new <- function(df) { 
     df |>
         janitor::clean_names() |>
         rename_with(function(x){gsub("_context","", x)}) |>
-        left_join(m49_recoded(m49), "iso") |>
+        left_join(m49_clean, "iso") |>
         select(-c(country_fr, country_es:country_fa)) |>
         relocate(year = year_n) |>
         df_recoded(score) |>
@@ -119,6 +119,10 @@ df_recoded_new <- function(df, col_name) {
 
 ```
 
+***
+
+<center>(*For this R code chunk is no output available*)</center>
+
 ::::
 :::::
 
@@ -140,13 +144,13 @@ The rationale for the recoding is very similar than for the period 2022 onwards.
 #| eval: false
 
 library(dplyr, warn.conflicts = FALSE)
-m49 <- base::readRDS(paste0(here::here(), "/data/chap012/m49.rds"))
+m49_clean <- base::readRDS(paste0(here::here(), "/data/chap021/m49_clean.rds"))
 
 rwb_old <- function(df) {
     df |>
         janitor::clean_names() |>
         rename_with(function(x){gsub("_context","", x)}) |>
-        left_join(m49_recoded(m49), "iso") |>
+        left_join(m49_clean, "iso") |>
         select(-c(fr_country, es_country:fa_country)) |>
         relocate(year = year_n) |>
         df_recoded(score_n) |>

@@ -1,18 +1,5 @@
 # RWB 2022-2025 {#sec-chap031}
 
-
-```{r}
-#| label: setup
-#| results: hold
-#| include: false
-
-base::source(file = "R/helper.R")
-base::source(file = "R/prepare-m49.R")
-base::source(file = "R/prepare-rwb.R")
-
-```
-
-
 ::::: {#obj-chap031}
 :::: {.my-objectives}
 ::: {.my-objectives-header}
@@ -51,9 +38,12 @@ Here now I have to pay attention the small differences between the various datas
 #| eval: false
 
 
+base::source(file = "R/helper.R")
+base::source(file = "R/prepare-rwb.R")
+
 library(dplyr, warn.conflicts = FALSE)
 
-m49 <-  readRDS(paste0(here::here(), "/data/chap012/m49.rds"))
+m49_clean <- base::readRDS(paste0(here::here(), "/data/chap021/m49_clean.rds"))
 rsf2021 <- readRDS(paste0(here::here(), "/data/chap011/rsf2021.rds"))
 rsf2022 <- readRDS(paste0(here::here(), "/data/chap011/rsf2022.rds"))
 rsf2023 <- readRDS(paste0(here::here(), "/data/chap011/rsf2023.rds"))
@@ -109,16 +99,34 @@ rwb2025 <- rsf2025 |>
 
 
 
-rwb <- bind_rows(
+rwb_2022_2025 <- bind_rows(
     rwb2022, rwb2023, rwb2024, rwb2025
     ) |>
-    mutate(across(where(is.character), as.factor)) |> 
+    mutate(
+        zone = case_match(
+            zone,
+            "Afrique" ~ "Africa",
+            "Amériques" ~ "Americas",
+            "Asie-Pacifique" ~ "Asia-Pacific",
+            "EEAC" ~ "Eastern Europe - Central Asia",
+            "Europe - Asie centrale" ~ "Europe - Central Asia",
+            "Maghreb - Moyen-Orient" ~ "Maghreb - Middle East",
+            "MENA" ~ "Middle East - Northern Africa",
+            "UE Balkans" ~ "EU Balkans",
+            .default = NA
+        )
+    ) |>
+    mutate(across(where(is.character), as.factor)) |>
     arrange(desc(year), desc(score))
 
-my_save_data_file("chap031", rwb, "rwb.rds")
+my_save_data_file("chap031", rwb_2022_2025, "rwb_2022_2025.rds")
 
 
 ```
+
+***
+
+<center>(*For this R code chunk is no output available*)</center>
 
 ::::
 :::::

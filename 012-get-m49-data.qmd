@@ -1,16 +1,5 @@
 # Get M49 data {#sec-chap012}
 
-
-```{r}
-#| label: setup
-#| results: hold
-#| include: false
-
-base::source(file = "R/helper.R")
-
-```
-
-
 ::::: {#obj-chap012}
 :::: {.my-objectives}
 ::: {.my-objectives-header}
@@ -58,6 +47,8 @@ The UNSD M40 standard area codes are stored as Excel and CSV files. I download f
 #| label: get-m49
 #| eval: false
 
+base::source(file = "R/helper.R")
+
 ## download unsd-m49 file ############
 url_m49 <- "https://github.com/omnika-datastore/unsd-m49-standard-area-codes/raw/refs/heads/main/2022-09-24__CSV_UNSD_M49.csv"
 
@@ -68,7 +59,7 @@ downloader::download(
 
 
 ## create R object ###############
-m49 <-
+m49_raw <-
     readr::read_delim(
         file = "data/m49.csv",
         delim = ";", 
@@ -77,7 +68,7 @@ m49 <-
         show_col_types = FALSE
     )
 
-my_save_data_file("chap012", m49, "m49.rds")
+my_save_data_file("chap012", m49_raw, "m49_raw.rds")
 ```
 
 Download and store the M49 classification system 

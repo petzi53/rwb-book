@@ -43,9 +43,11 @@ I downloaded original data from Natural Earth with `rnaturalearth::ne_download()
 
 ```{r}
 #| label: get-map-data
+#| lst-label: lst-013-get-map-data
+#| lst-cap: Get map data from Natural Earth
 #| eval: false
 
-raw_countries <- rnaturalearth::ne_countries(
+ne_countries_raw <- rnaturalearth::ne_countries(
   scale = "medium",
   type = "countries",
   continent = NULL,
@@ -55,12 +57,17 @@ raw_countries <- rnaturalearth::ne_countries(
   returnclass = "sf"
 )
 
-my_save_data_file("chap013", raw_countries, "raw_countries.rds")
+my_save_data_file("chap013", ne_countries_raw, "ne_countries_raw.rds")
 
 ```
 
 Get map data from Natural Earth
 ::: 
+
+***
+
+<center>(*For this R code chunk is no output available*)</center>
+
 ::::
 :::::
 

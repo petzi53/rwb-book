@@ -1,0 +1,593 @@
+# Plot map 2022-2025 {#sec-chap041}
+
+::::: {#obj-chap041}
+:::: {.my-objectives}
+::: {.my-objectives-header}
+Objectives
+:::
+
+::: {.my-objectives-container}
+
+Plot the `r glossary("WPFI")` country distribution with an interactive map.
+
+
+:::
+::::
+:::::
+
+## Introduction
+
+:::::{.my-resource}
+:::{.my-resource-header}
+:::::: {#lem-041-map-plotting}
+: Map plotting
+::::::
+:::
+::::{.my-resource-container}
+I have my notes how to plot maps distributed over several places:
+
+- [Vector Geospatial Data](https://bookdown.org/pbaumgartner/gdswr-notes-new/05-vector-geospatial-data.html) explains in [Chapter 5](https://bookdown.org/mcwimberly/gdswr-book/vector-geospatial-data.html) of Geographic Datascience with R (GDSR) [@wimberly-2022; @wimberly-2023; @wimberly-2023a] map plotting with the `ggplot2::geom_sf()` in combination with {**sf**}, but also describes previous important procedures with shapefiles and {**sp**} (the predecessor of {**sf**}.
+- [Creating Maps](https://bookdown.org/pbaumgartner/gdswr-notes-new/91-creating-maps.html) is an appendix to my notes on the GSDR book. It covers two tutorials: The article by [@felixanalytix-2023] and video [@felixanalytix-2023a]. It uses `ggplot2::geom_sf()` to draw the maps and explains several important procedures like 
+    - choosing `adm0_a3` for the [correct ISO country code](https://bookdown.org/pbaumgartner/gdswr-notes-new/91-creating-maps.html#plotting-a-world-map)
+    - [changing the world map projection](https://bookdown.org/pbaumgartner/gdswr-notes-new/91-creating-maps.html#changing-world-map-projection)
+    - [zooming into a specific area](https://bookdown.org/pbaumgartner/gdswr-notes-new/91-creating-maps.html#zooming-into-a-specific-area)
+    - [changing scale and color distribution](https://bookdown.org/pbaumgartner/gdswr-notes-new/91-creating-maps.html#changing-scale-and-color-distribution)
+- [Interactive Choroploth Maps](https://bookdown.org/pbaumgartner/gdswr-notes-new/92-interactive-maps.html) uses the {**plotly**} tutorial in [Choropleth maps in R](https://plotly.com/r/choropleth-maps/).
+- [Working With Austrian Data](https://bookdown.org/pbaumgartner/gdswr-notes-new/95-austrian-data.html) is looking for Austrian spatial datasets. It plots two Austrian maps, one with the [nine regional boundaries](https://bookdown.org/pbaumgartner/gdswr-notes-new/95-austrian-data.html#lst-annex-d-plot-regions) and one with the detailed [administrative borders](https://bookdown.org/pbaumgartner/gdswr-notes-new/95-austrian-data.html#lst-annex-d-austrian-regions-with-admin-borders).
+- [Making Maps with R](https://bookdown.org/pbaumgartner/geocomputing-notes/09-making-maps.html) is chapter 9 of [Geocomputation with R](https://r.geocompx.org/) [@lovelace-2025]. It covers mainly the use of static, animated and interactive thematic maps with {**tmap**} but has also sections about mapping applications and references to other mapping facilities (like base::plot() and ggplot2::geom_sf()) and packages (like {**leaflet**}, {**mapsf**}, {**mapview**} and {**ggspatial**}).
+- [Learn Leaflet](https://bookdown.org/pbaumgartner/geocomputing-notes/97-learn-leaflet.html) covers an introduction to {**leaflet**}, `r glossary("choropleth")` maps, how to show/hide layers and concludes with a case study using the `r glossary("WHR")` data.
+::::
+:::::
+
+As I am not much experienced with map plotting
+I am following here closely chapter 9 [Making Maps with
+R](https://r.geocompx.org/adv-map) respectively chapter 8 of the 2nd edition of the printed
+book Geocomputation with R [@lovelace-2025]. The text explains mainly the use of {**tmap**}. I think it is better to know one approach in detail than to have superficial knowledge of several packages. If I have more knowledge and experience in map plotting I will maybe check the other packages to decide which is for my use case the best solution. 
+
+During the reading of chapter 9 I will focus to generate a world map with my RBW dataset and skip section that are not relevant for this purpose.
+
+In addition
+to the example and code demonstrations I will also use my own
+`r glossary("RWB")` dataset.
+
+## Prepare WPFI data for colored map
+
+Before I can plot a map with country colors in relation to the press indices I need to join my RWB dataset with the map data from `r glossary("Natural Earth")` (abbreviated in the code with `ne`).
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-041-join-rwb-map}
+: Join RWB dataset 2022-2025 with the geometry information of the countries
+::::::
+:::
+::::{.my-r-code-container}
+
+<center>**Run this code chunk manually if the file(s) still needs to be downloaded.**</center>
+
+```{r}
+#| label: join-rwb-map
+#| lst-label: lst-041-join-rwb-map
+#| lst-cap: Prepare dataset for map plotting by joining RWB data 2022-2025 with country data from Natural Earth
+#| eval: false
+
+library(dplyr, warn.conflicts = FALSE)
+source("R/helper.R")
+
+ne_countries_short <- readRDS(paste0(here::here(), "/data/chap023/ne_countries_short.rds")) |> 
+        my_as_tibble_sf()
+
+rwb_2022_2025 <- readRDS(paste0(here::here(), "/data/chap031/rwb_2022_2025.rds"))
+
+rwb_map_2022_2025 <- left_join(
+    rwb_2022_2025,
+    ne_countries_short,
+    by = join_by(iso == adm0_a3)
+)
+
+my_save_data_file("chap041", rwb_map_2022_2025, "rwb_map_2022_2025.rds")
+```
+
+***
+
+<center>(*For this R code chunk is no output available*)</center>
+
+::::
+:::::
+
+By inspecting the dataset manually it turned out that for the following countries do exist RWB data but no geometry:
+
+- `r glossary("OECS")`: Organisation of Eastern Caribbean States
+- Northern Cyprus
+- Palestine
+- South Sudan
+- Kosovo
+
+I will keep these countries for the and see how their geometry missing is reflected in the world map. If their RWB score will not show up I may delete them from the dataset.
+
+There is another issue with Taiwan (TWN): It has RWB scores and geometry data but is lacking `r glossary("UNSD")` `r glossary("m49")` regional names. The reason is pressure from China which sees Taiwan as one of their provinces. But for my purpose to show the WPFI for as many countries as possible I will add the missing regional names.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-041-taiwan-treatment}
+: Adding regional categories for Taiwan (TWN)
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: taiwan-treatmen
+#| lst-label: lst-041-taiwan-treatment
+#| lst-cap: Adding regional categories for Taiwan (TWN)
+#| eval: false
+
+library(dplyr, warn.conflicts = FALSE)
+source("R/helper.R")
+rwb_map_2022_2025 <- readRDS(paste0(here::here(), "/data/chap041/rwb_map_2022_2025.rds"))
+
+rwb_map_2022_2025_clean <- rwb_map_2022_2025 |> 
+    mutate(
+        region = if_else(iso == "TWN", "Asia", region),
+        sub_region = if_else(iso == "TWN", "Eastern Asia", sub_region),
+        intermediate_region = if_else(iso == "TWN", "Eastern Asia", intermediate_region)
+    ) 
+
+my_save_data_file("chap041", rwb_map_2022_2025_clean, "rwb_map_2022_2025_clean.rds")
+```
+
+::::
+:::::
+
+## Map first draft
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-041-draft-wpfi-2025-map}
+: Colored WPFI map for 2025 (first)
+::::::
+:::
+::::{.my-r-code-container}
+
+
+```{r}
+#| label: rwb-2025
+#| lst-label: lst-041-rwb-2025
+
+library(dplyr, warn.conflicts = FALSE)
+source("R/helper.R")
+
+rwb_map_2022_2025_clean <- readRDS(paste0(here::here(), "/data/chap041/rwb_map_2022_2025_clean.rds"))
+
+rwb_map_2025 <- rwb_map_2022_2025_clean |> 
+    dplyr::filter(year == "2025") |> 
+    sf::st_as_sf()
+
+my_save_data_file("chap041", rwb_map_2025, "rwb_map_2025.rds")
+
+```
+
+::::
+:::::
+
+To inspect the result more in detail I embrace the code with `::: {.column-screen}` and `:::` to use the whole screen width for the map. After the inspection I will remove this addition and return to the normal view.
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-041-plot-map-draft1-2025}
+: Plot the first draft for the choropleth map of the WPFI data 2025
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-041-plot-map-draft1-2025
+#| lst-label: lst-041-plot-map-draft1-2025
+#| fig-cap: "Draft 1: World Press Freedom Index 2025 with continuous color palette"
+#| fig-asp: 0.4
+
+rwb_map_2025 <- readRDS(paste0(here::here(), "/data/chap041/rwb_map_2025.rds"))
+
+tmap::tm_shape(rwb_map_2025) +             # (1)
+tmap::tm_polygons(                         # (2)
+    fill = "score",
+    fill.legend = tmap::tm_legend(         # (5)
+        title = "Global score"
+    )
+) +
+tmap::tm_crs("auto") +                     # (3)
+tmap::tm_layout(                           # (4)
+    legend.position = c("left","bottom"),
+    legend.title.size = 0.8, 
+    legend.text.size = 0.5
+    ) 
+```
+
+
+::::
+:::::
+
+In contrast of the original book example I have changed / added several code lines:
+
+1. `tmap::tm_shape()`: This is the essential function to start the map plotting and I used it identical as in the book original.
+2. `tmap::tm_polygons()`: This is the combination of `tmap::tm_borders()` and `tmap::t_fill()`.
+3. `tmap::tm_crs("auto")` was hinted as a console output by the program.
+4. `tmap::tm_layout()`: This is a function with a huge amount of parameters. I used it here 
+    - to save space by integrating the legend into the map borders `legend.position = c("left","bottom")`,
+    - to get a smaller text size for the legend title `legend.title.size = 0.8`,
+    - to get a smaller text size for the legend text `legend.text.size = 0.5`.
+5. `fill.legend = tmap::tm_legend(title = "Global score")` to change elements inside the legend you need for the current version 4 to provide `fill.legend = tmap::tm_legend()` inside the appropriate layer. (Version 3 used `tmap::tm_legend()` as an extra function outside the layer.)
+
+## Map second draft
+
+::: {.callout-note #nte-041-draft1}
+###### Conclusion for fig-041-plot-map-draft1-2025
+
+- The breaks for the score values do not correspond with the WPFI `_situation` data.
+- If using the categories for the WPFI `_situation` data I would need a discrete color palette.
+:::
+
+My first draw in fig-041-plot-map-draft1-2025 demonstrate tmap’s default aesthetic
+settings. Of course, these default values and other
+aesthetics can be overridden.
+
+-   `fill`: fill color of a polygon
+-   `col`: color of a polygon border, line, point, or raster
+-   `lwd`: line width
+-   `lty`: line type
+-   `size`: size of a symbol
+-   `shape`: shape of a symbol
+
+Additionally, you may customize the fill and border color transparency
+using `fill_alpha` and `col_alpha`.
+
+For instance, if I would add (`col = "white"`) to the polygon layer I would get white country borders.
+
+`fill` (and other aesthetics that can vary such as `lwd` for line layers and `size` for point layers) will not like base R numbers but requires a character string naming an attribute associated with the geometry to be plotted. Thus, I have achieved the different blue colors using the character string "score" commanding {**tmap**} to use the content of the appropriate column.
+
+- If I use instead a factor column like `score_situation` I will get the country colored with a discrete color palette. See code annotation (6).
+- To correspond the colors with the RWB color scheme in [Methdology 2025](https://rsf.org/en/methodology-used-compiling-world-press-freedom-index-2025?year=2025&data_type=general) I have defined the corresponding colors. See code annotation (7).
+
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-041-plot-map-draft2-2025}
+: Plot the second draft for the choropleth map of the WPFI data 2025
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-041-plot-map-draft2-2025
+#| lst-label: lst-041-plot-map-draft2-2025
+#| fig-cap: "Draft 2: World Press Freedom Index 2025 with my own discrete color palette"
+#| fig-asp: 0.4
+
+rwb_map_2025 <- readRDS(paste0(here::here(), "/data/chap041/rwb_map_2025.rds"))
+
+my_colors <- c("seagreen1", "yellow", "gold2", "darkorange", "red3" )
+
+tmap::tm_shape(rwb_map_2025) +             
+tmap::tm_polygons(                         
+    fill = "score_situation",                                    # (6)
+    fill.scale = tmap::tm_scale_categorical(values = my_colors), # (7)
+    fill.legend = tmap::tm_legend(title = "Global score")
+) +
+tmap::tm_crs("auto") +                     
+tmap::tm_layout(                           
+    legend.position = c("left","bottom"),
+    legend.title.size = 0.8, 
+    legend.text.size = 0.5
+    ) 
+```
+
+
+::::
+:::::
+
+
+It was difficult to find the solution for the color mapping, because the arguments have changed with version 4 and most of the questions-answers in the internet cover only version 3. After I have used version 3 code I got some hints from the program, but these tips were not immediately conclusive for me. Helpful was the article about [tmap charts](https://r-tmap.github.io/tmap/articles/tmap_vv.html) with the differences between V3 and V4 and the references to the [different scales](https://r-tmap.github.io/tmap/articles/tmap_vv.html#scales). With the article about [Scales: categorical and ordinal scale](https://r-tmap.github.io/tmap/reference/tm_scale_categorical.html) I finally understand the solution and how to use the `value` argument hinted in the program message when I used version 3 code.
+
+
+## Map third draft
+
+::: {.callout-note #nte-041-scales-and-breaks}
+The whole book section on [Scales](https://r.geocompx.org/adv-map#scales) is only partly relevant for me. I have already created own `*_situation` columns with the break information. I do not need to use the different break arguments for `tmap::tm_scales()` or styles for the `tmap::tm_scale_intervals()` or generate my own style with `classInt::classIntervals()`.
+
+For my concrete use case of `rwb_map_2025` data I only need to assign color palettes for 
+
+- `tmap::tm_scale_continuous()`, 
+- `tmap::tm_scale_ordinal()`, and 
+- `tmap::tm_scale_categorical()`
+:::
+
+In @fig-041-plot-map-draft1-2025 and @fig-041-plot-map-draft2-2025 I have used a continuous scale for the `score` column and a categorical scale for the `score_situation` column. But `score_situation` is an ordered category. 
+
+- **Annotation (8)**: So let's try what happens if I use `tmap::tm_scale_ordinal()`. 
+- **Annotation (9)**: As the palette has more than five colors, I had to limit the used colors.
+- **Annotation (10)**: I wanted the color palette in reverse (the `-`sign in front of the palette name), because otherwise you can't see clearly the few very white countries with good WPFI situations against the huge amount of dark colored countries with very serious condition. As there are several blue palettes I had to use the full palette name.
+
+::: {.callout-note #nte-41-eval-ordinal-scale}
+I think that the color mapping with the ordinal scale is slightly better than with the continuous scale, where the tiny differences are not always clearly to distinguish.
+
+But maybe it is a good solution to let the user choose which color palette has to be used for the map?
+:::
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-041-plot-map-draft3-2025}
+: Plot the third draft for the choropleth map of the WPFI data 2025
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-041-plot-map-draft3-2025
+#| lst-label: lst-041-plot-map-draft3-2025
+#| fig-cap: "Draft 3: World Press Freedom Index 2025 with a reverse ordered discrete color palette"
+#| fig-asp: 0.4
+
+rwb_map_2025 <- readRDS(paste0(here::here(), "/data/chap041/rwb_map_2025.rds"))
+
+
+tmap::tm_shape(rwb_map_2025) +             
+tmap::tm_polygons(                         
+    fill = "score_situation",                                    
+    fill.scale = tmap::tm_scale_ordinal(                       # (8)
+        n.max = 5,                                             # (9)
+        "-brewer.blues"),                                      # (10)    
+    fill.legend = tmap::tm_legend(title = "Global score")
+) +
+tmap::tm_crs("auto") +                     
+tmap::tm_layout(                           
+    legend.position = c("left","bottom"),
+    legend.title.size = 0.8, 
+    legend.text.size = 0.5
+    ) 
+```
+
+
+::::
+:::::
+
+
+## Map fourth draft
+
+I could apply as in @fig-041-plot-map-draft2-2025 the official color palette. Ssee code annotation (11). In this case the result of @fig-041-plot-map-draft4-2025 is similar as in the second trial but now with exact the same colors as described in [Methodology of the RWB website](https://rsf.org/en/methodology-used-compiling-world-press-freedom-index-2025?year=2025&data_type=general).
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-041-plot-map-draft4-2025}
+: Plot the fourth draft for the choropleth map of the WPFI data 2025
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-041-plot-map-draft4-2025
+#| lst-label: lst-041-plot-map-draft4-2025
+#| fig-cap: "Draft 4: World Press Freedom Index 2025 with the official RWB color palette"
+#| fig-asp: 0.4
+
+rwb_map_2025 <- readRDS(paste0(here::here(), "/data/chap041/rwb_map_2025.rds"))
+
+rwb_colors <- c("#c6e269", "#ecc33d", "#e29950", "#de643a", "#9f1714" ) # (11)
+
+rwb_draft4 <- tmap::tm_shape(rwb_map_2025) +             
+tmap::tm_polygons(                         
+    fill = "score_situation",                                    
+    fill.scale = tmap::tm_scale_ordinal(values = rwb_colors),    # (11)
+    fill.legend = tmap::tm_legend(title = "Global score")
+) +
+tmap::tm_crs("auto") +                     
+tmap::tm_layout(                           
+    legend.position = c("left","bottom"),
+    legend.title.size = 0.8, 
+    legend.text.size = 0.5
+    )
+
+my_save_data_file("chap041", rwb_draft4, "rwb_draft4.rds")
+
+rwb_draft4
+```
+
+
+::::
+:::::
+
+I have already incorporated the most important changes for the legend. And the layout as a combination of all map elements into a cohesive map are very special and has to be done in the real world Shiny app. When this situation arise then I have to consult the appropriate section of the geocomputation book and especially for turning on the design mode with `tmap::tmap_design_mode()`[ my own notes](http://localhost:6815/09-making-maps.html#design-mode).
+
+## Map fifth draft (facets)
+
+At first I tried the faceted map with the ordered five breaks. But this was a useless decision, because the changes were generally not big enough to change categories. I got four identical facets.
+
+
+::: {.column-screen}
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-041-fifth-draft}
+: Fifth draft: Faceted map showing the WPFI for the years 2022-2025
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-041-fifth-draft
+#| lst-label: lst-041-fifth-draft
+#| lst-cap: Faceted map showing the WPFI for the years 2022-2025
+
+library(dplyr, warn.conflicts = FALSE)
+source("R/helper.R")
+
+rwb_map_2022_2025 <- readRDS(paste0(here::here(), "/data/chap041/rwb_map_2022_2025_clean.rds")) |> 
+    sf::st_as_sf()
+
+tmap::tm_shape(rwb_map_2022_2025) +             
+tmap::tm_polygons(
+    fill = "score",                                    
+    fill.scale = tmap::tm_scale_continuous(),
+    fill.legend = tmap::tm_legend(title = "Global score")
+) +
+tmap::tm_crs("auto") +                     
+  tmap::tm_facets_wrap(by = "year", nrow = 2) +
+  tmap::tm_layout(
+    legend.orientation = "landscape",
+    legend.position = tmap::tm_pos_out(
+      cell.h = "center",
+      cell.v = "bottom"
+    )
+  )
+```
+
+::::
+:::::
+
+::: 
+
+Therefore I tried it with the continuous scale for the score values as used in @fig-041-plot-map-draft1-2025. But again: The small score differences between the four years are not visible because the changes in the color shades are too tiny. If you compare the colors of Argentina in 2022 and 2025 then you will see a substantial deterioration from a 77 to the score of 56. But even with this tremendous difference --- where Argentina drops from the rank 29 to the rank 87 --- one has difficulty to notice immediately the different color shade.
+
+## Map sixth draft: Facet with a better sequential color palette
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-041-sixth-draft}
+: Sixth draft: Faceted map showing the WPFI for the years 2022-2025
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-041-sixth-draft
+#| lst-label: lst-041-sixth-draft
+#| lst-cap: Faceted map showing the WPFI for the years 2022-2025
+
+library(dplyr, warn.conflicts = FALSE)
+source("R/helper.R")
+
+rwb_map_2022_2025 <- readRDS(paste0(here::here(), "/data/chap041/rwb_map_2022_2025_clean.rds")) |> 
+    sf::st_as_sf()
+
+tmap::tm_shape(rwb_map_2022_2025) +             
+tmap::tm_polygons(
+    fill = "score",                                    
+    fill.scale = tmap::tm_scale_ordinal(
+            n.max = 15,
+            "carto.ag_sunset"),
+    fill.legend = tmap::tm_legend(title = "Global score")
+) +
+tmap::tm_crs("auto") +                     
+  tmap::tm_facets_wrap(by = "year", nrow = 2) +
+  tmap::tm_layout(
+    legend.orientation = "landscape",
+    legend.position = tmap::tm_pos_out(
+      cell.h = "center",
+      cell.v = "bottom"
+    )
+  )
+```
+
+::::
+:::::
+
+::: {.callout-note #nte-041-facets}
+##### Facets only for distinct differences
+
+Even with this more distinctive color palette one cannot see the differences easily. The year-to-year changes are not big enough to get represented in perceptible color shade differences. The use of facets is better suited when the time span between to facets are many years. The book example uses therefore distances of 20 (!) years from one facet to the next.
+
+**The same problem applies also with animated map!**
+:::
+
+Using [inset maps](https://r.geocompx.org/adv-map#inset-maps) could be convenient when the user zooms into part of the maps. The program could zoom for instance into a specific region that the user has chosen via a drop down menu.
+
+## Map seventh draft: Interactivity
+
+A unique feature of {**tmap**} is its ability to create static and interactive maps using the same code. Maps can be viewed interactively at any point by switching to view mode, using the command `tmap::tmap_mode("view")`.
+
+This should be the same as
+`tmap::tmap_leaflet(data, show  = TRUE)` with the advantage that you can
+specify to show or hide the map and that you don't need to place the
+code to return to plot mode with `tmap::tmap_mode("plot")`.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-041-seventh-draft-leaflet}
+: Convert object class `tmap` into interactive leaflet
+::::::
+:::
+::::{.my-r-code-container}
+<center>**Run this code chunk manually if the file(s) still needs to be downloaded.**</center>
+
+```{r}
+#| label: seventh-draft-leaflet
+#| lst-label: lst-041-seventh-draft-leaflet
+#| lst-cap: Convert tmap into leaflet map
+#| warning: false
+#| results: hold
+
+rwb_draft4 <- readRDS(paste0(here::here(), "/data/chap041/rwb_draft4.rds"))
+rwb_draft7 <-  tmap::tmap_leaflet(rwb_draft4, show = TRUE)
+rwb_draft7
+
+my_save_data_file("chap041", rwb_draft7, "rwb_draft7.rds")
+```
+
+<center>(*For this R code chunk is no output available*)</center>
+
+::::
+:::::
+
+
+::: {.callout-warning #wrn-041-webgl-not-working}
+
+###### WebGL does not work (yet) with projected map projections
+
+I set `warning: false` because I got the message     
+
+> [view mode] WebGL does not work (yet) with projected map projections, so it has been disabled.    
+
+Another possibility would have been to `use_WebGL = FALSE` when calling the `tmap::tm_view()` function.
+
+:::
+
+
+
+## Map eighth draft: Choosing a basemap
+
+Notable features of this interactive mode include the ability to specify the basemap with `tmap::tm_basemap()` (or `tmap::tmap_options()`). The first argument of `tmap::tm_basemap()` is `server` for obtaining a specific map by a provider. The list of available providers can be obtained with providers (tip: in RStudio, type leaflet::providers$ in the console or in a code chunk to see to see the options). See https://leaflet-extras.github.io/leaflet-providers/preview/ for a preview of those. When a URL is provided, it should be in template format, e.g. `https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`. Use NULL in `tmap::tm_basemap()` to disable basemaps.
+
+::: {.callout-note #nte-041-basemap-not-compatible-with-rwb-data-mapping}
+Another basemap layer would not result in a nice visualization as I will color all countries by their score values. 
+
+After I have tried to use the `OpenTopoMap` basemap I got the following warning:
+
+> [basemaps] Tiles from "OpenTopoMap" will be projected so details (e.g. text)
+> could appear blurry
+> This message is displayed once per session.
+:::
+
+
+
+## Glossary Entries {.unnumbered}
+
+```{r}
+#| label: glossary-table
+#| echo: false
+
+glossary_table()
+```
+
+------------------------------------------------------------------------
+
+## Session Info {.unnumbered}
+
+::: my-r-code
+::: my-r-code-header
+Session Info
+:::
+
+::: my-r-code-container
+```{r}
+#| label: session-info
+
+sessioninfo::session_info()
+```
+:::
+:::
+

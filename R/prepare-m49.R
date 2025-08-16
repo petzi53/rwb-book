@@ -10,14 +10,12 @@ m49_recoded <- function(df) {
         ) |>
         dplyr::select(
             iso_alpha3_code,
-            country_or_area,
             region_name,
             sub_region_name,
             intermediate_region_name
         ) |>
         dplyr::rename(
             iso = iso_alpha3_code,
-            name = country_or_area
         ) |>
         dplyr::rename_with(function(x) {gsub("_name","",x)})
 }

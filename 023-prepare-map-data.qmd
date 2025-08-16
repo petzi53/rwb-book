@@ -1,16 +1,5 @@
 # Prepare map data {#sec-chap023}
 
-
-```{r}
-#| label: setup
-#| results: hold
-#| include: false
-
-base::source(file = "R/helper.R")
-
-```
-
-
 ::::: {#obj-chap023}
 :::: {.my-objectives}
 ::: {.my-objectives-header}
@@ -19,12 +8,24 @@ Objectives
 
 ::: {.my-objectives-container}
 
-Here I want to prepare the raw dataset `raw_countries.rds` for joining with the RWB dataset `rwb.rds` to generate a `r glossary("choropleth")` map.
+Here I want to prepare the raw country dataset `ne_countries_raw.rds` for joining later with the RWB dataset `rwb_2022_2025.rds` to generate a `r glossary("choropleth")` map.
+
 
 
 :::
 ::::
 :::::
+
+`ne_countries_raw.rds` is a long dataset with 169 columns. I need only the last column `geometry` and a column for joining with the RWB dataset. There are many different columns with ISO values. I settle for `adm0_a3`. 
+
+Additionally, I keep also all columns with regional categories. These are the columns numbers 93 to 96:
+
+- continent: Nr. 93,  6 categories
+- region_un: Nr. 94,  5 categories
+- subregion: Nr. 95, 22 categories
+- region_wb: Nr. 96,  7 categories
+
+(All categories counted without Antarctica.)
 
 
 :::::{.my-r-code}
@@ -34,21 +35,35 @@ Here I want to prepare the raw dataset `raw_countries.rds` for joining with the 
 ::::::
 :::
 ::::{.my-r-code-container}
+
+<center>**Run this code chunk manually if the file(s) still needs to be downloaded.**</center>
+
 ```{r}
 #| label: prepare-map-data
 #| lst-label: lst-023-prepare-map-data
 #| lst-cap: Prepare map data to display the World Press Freedom Index
 #| eval: false
 
-
+base::source(file = "R/helper.R")
 library(dplyr, warn.conflicts = FALSE)
 
-raw_countries <- readRDS(paste0(here::here(), "/data/chap013/raw_countries.rds"))
-
-rwb_countries <- raw_countries |> 
-    select(iso_a3, name_long, c(93:96), geometry) |>
+ne_countries_short <- readRDS(
+    paste0(here::here(), 
+           "/data/chap013/ne_countries_raw.rds"
+           )
+    ) |> 
+    select(adm0_a3, c(93:96), geometry) |>
     mutate(across(where(is.character), as.factor))
+
+
+my_save_data_file("chap023", ne_countries_short, "ne_countries_short.rds")
+
+
 ```
+
+***
+
+<center>(*For this R code chunk is no output available*)</center>
 
 ::::
 :::::

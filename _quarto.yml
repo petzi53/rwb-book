@@ -23,6 +23,7 @@ book:
     - 022-prepare-rwb-data.qmd
     - 023-prepare-map-data.qmd
     - 031-rwb-2022-2025.qmd
+    - 041-map-2022-2025.qmd
 
 bibliography:
     - references.bib
