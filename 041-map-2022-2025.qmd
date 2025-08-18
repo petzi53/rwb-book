@@ -34,7 +34,7 @@ I have my notes how to plot maps distributed over several places:
     - [changing scale and color distribution](https://bookdown.org/pbaumgartner/gdswr-notes-new/91-creating-maps.html#changing-scale-and-color-distribution)
 - [Interactive Choroploth Maps](https://bookdown.org/pbaumgartner/gdswr-notes-new/92-interactive-maps.html) uses the {**plotly**} tutorial in [Choropleth maps in R](https://plotly.com/r/choropleth-maps/).
 - [Working With Austrian Data](https://bookdown.org/pbaumgartner/gdswr-notes-new/95-austrian-data.html) is looking for Austrian spatial datasets. It plots two Austrian maps, one with the [nine regional boundaries](https://bookdown.org/pbaumgartner/gdswr-notes-new/95-austrian-data.html#lst-annex-d-plot-regions) and one with the detailed [administrative borders](https://bookdown.org/pbaumgartner/gdswr-notes-new/95-austrian-data.html#lst-annex-d-austrian-regions-with-admin-borders).
-- [Making Maps with R](https://bookdown.org/pbaumgartner/geocomputing-notes/09-making-maps.html) is chapter 9 of [Geocomputation with R](https://r.geocompx.org/) [@lovelace-2025]. It covers mainly the use of static, animated and interactive thematic maps with {**tmap**} but has also sections about mapping applications and references to other mapping facilities (like base::plot() and ggplot2::geom_sf()) and packages (like {**leaflet**}, {**mapsf**}, {**mapview**} and {**ggspatial**}).
+- [Making Maps with R](https://bookdown.org/pbaumgartner/geocomputing-notes/09-making-maps.html) is chapter 9 of [Geocomputation with R](https://r.geocompx.org/) [@lovelace-2025]. It covers mainly the use of static, animated and interactive thematic maps with {**tmap**} but has also sections about mapping applications and references to other mapping facilities (like `base::plot()` and `ggplot2::geom_sf()`) and packages (like {**leaflet**}, {**mapsf**}, {**mapview**} and {**ggspatial**}).
 - [Learn Leaflet](https://bookdown.org/pbaumgartner/geocomputing-notes/97-learn-leaflet.html) covers an introduction to {**leaflet**}, `r glossary("choropleth")` maps, how to show/hide layers and concludes with a case study using the `r glossary("WHR")` data.
 ::::
 :::::
@@ -190,7 +190,8 @@ tmap::tm_polygons(                         # (2)
     fill = "score",
     fill.legend = tmap::tm_legend(         # (5)
         title = "Global score"
-    )
+    ),
+    fill.scale = tmap::tm_scale_continuous(values = "brewer.blues")
 ) +
 tmap::tm_crs("auto") +                     # (3)
 tmap::tm_layout(                           # (4)
@@ -207,7 +208,7 @@ tmap::tm_layout(                           # (4)
 In contrast of the original book example I have changed / added several code lines:
 
 1. `tmap::tm_shape()`: This is the essential function to start the map plotting and I used it identical as in the book original.
-2. `tmap::tm_polygons()`: This is the combination of `tmap::tm_borders()` and `tmap::t_fill()`.
+2. `tmap::tm_polygons()`: This is the combination of `tmap::tm_borders()` and `tmap::tm_fill()`.
 3. `tmap::tm_crs("auto")` was hinted as a console output by the program.
 4. `tmap::tm_layout()`: This is a function with a huge amount of parameters. I used it here 
     - to save space by integrating the legend into the map borders `legend.position = c("left","bottom")`,

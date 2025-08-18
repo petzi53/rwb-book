@@ -24,6 +24,7 @@ book:
     - 023-prepare-map-data.qmd
     - 031-rwb-2022-2025.qmd
     - 041-map-2022-2025.qmd
+    - 042-learn-leaflet.qmd
 
 bibliography:
     - references.bib
