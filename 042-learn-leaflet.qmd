@@ -1,6 +1,6 @@
 # Learn Leaflet {#sec-chap042}
 
-August 17, 2025
+August 17-18, 2025
 
 ```{r}
 #| label: setup
@@ -120,10 +120,9 @@ territory. But in this chapter I will focus on {**leaflet**}.
 ::::
 
 ::: my-resource-container
-I am ignoring at the moment tutorials using Leaflet.js from scratch and
-collect here only tutorial resources for the R {**leaflet**} package.
-Many tutorials cover adding markers but my special is on `r glossary("choropleth")`
-maps.
+I am ignoring to list tutorials using Leaflet.js from scratch and
+collect here only resources for learning the R {**leaflet**} package.
+Many tutorials cover some special actions like adding markers but my special focus at the moment is on `r glossary("choropleth")` maps.
 
 **Most important resources**
 
@@ -544,7 +543,9 @@ It is interesting that {**leaflet**} centered the map automatically. I do not kn
 ::::
 :::::
 
-But to learn how to apply `leaflet::addTiles()` I have used in the next code chunk [OpenTopoMap](https://leaflet-extras.github.io/leaflet-providers/preview/#filter=OpenTopoMap) from Google [OpenStreetMap](https://www.openstreetmap.org/).
+If I would have uses the standard `leaflet::addTiles()` the world view would be the same. But zooming into a region would bring up the OpenStreetMap default map. (There are many different types of maps [@king-nd].)
+
+But to learn how to apply `leaflet::addProviderTiles()` I have used in the next code chunk the free [OpenTopoMap](https://leaflet-extras.github.io/leaflet-providers/preview/#filter=OpenTopoMap) from Google [OpenStreetMap](https://www.openstreetmap.org/).
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
@@ -674,7 +675,7 @@ leaflet::leaflet(rwb_map_2025) |>
 
 ::: 
 
-#### Leaflet bounding box for a world map {#sec-042-bounding-box}
+##### Bounding box {#sec-042-bounding-box}
 
 (The next two paragraphs originate from the Brave-KI with the search string "r leaflet bounding box for a world map".)
 
@@ -719,7 +720,7 @@ leaflet::leaflet(rwb_map_2025) |>
 ::::
 :::::
 
-#### Selecting a bounding area manually
+##### Selecting area manually
 
 Another strategy is to set the bounding box in OpenStreetMap manually as the following image shows:
 
@@ -756,7 +757,7 @@ leaflet::leaflet(rwb_map_2025) |>
 
 The results from @lst-042-bounding-area-manually and @lst-042-bounding-box are very similar as their values differ only few degrees. From the practical perspective to choose any region of the world only the last option (setting the boundaries manually) is viable.
 
-## Adding some color
+### Adding some color
 
 Until now we have only use the default styling options for `leaflet::addPolygons()`. It resulted in dark blue thick country border lines and light blue background for the country areas.
 
@@ -812,9 +813,9 @@ The four color functions all have two required arguments, `palette` and `domain`
 
 **The domain argument** tells the color function the range of input values. You can pass `NULL` here to create a palette function that doesn’t have a preset range; the range will be inferred from the data each time you invoke the palette function. If you use a palette function multiple times across different data, it’s important to provide a non-`NULL` value for `domain` so the scaling between data and colors is consistent.
 
-### Coloring continuous data
+#### Continuous data
 
-#### Continuous colors
+##### Continuous colors
 
 The following graphics uses continuous colors to map continuous input. We will map the {**sf**} data frame `rwb_map_20225` with its global score values of the `r glossary("WPFI")` directly to the "Blues" palette from [Color Brewer 2](https://colorbrewer2.org/#type=sequential&scheme=Blues&n=9). The "Blues" palette only contains nine colors, but `leaflet::colorNumeric()` interpolates these colors so we get continuous output.
 
@@ -855,13 +856,19 @@ leaflet::leaflet(rwb_map_2025) |>
     smoothFactor = 0.2, 
     fillOpacity = 1,
     color = ~pal(score)
-  )
+  ) |> 
+  leaflet::addLegend(pal = pal, values = ~score, opacity = 0.7, title = NULL,
+  position = "bottomleft")
 ```
 
 ::::
 :::::
 
 ::: 
+
+::: {.callout-note #nte-042-added-legend}
+To see the differences of the various map scales I needed to add a legend, a feature covered in detail in @sec-042-legend.
+:::
 
 Compare @fig-041-plot-map-draft1-2025 with @fig-042-continuous-colors. Keep in mind that @fig-042-continuous-colors 
 
@@ -871,11 +878,16 @@ Compare @fig-041-plot-map-draft1-2025 with @fig-042-continuous-colors. Keep in m
 
 But besides these differences both figures are quite similar.
 
-#### Discrete colors
+##### Discrete colors
 
 Continuous input is mapped onto discrete colors with `leaflet::colorBin()` and `leaflet::colorQuantile()`.
 
-**`leaflet::colorBin()`** maps numeric input data to a fixed number of output colors using binning (slicing the input domain up by value).
+- `leaflet::colorBin()` maps numeric input data to a fixed number of output colors using binning (slicing the input domain up by value).
+- `leaflet::colorQuantile()` maps numeric input data to a fixed number of output colors using quantiles by slicing the input domain into subsets with equal numbers of observations.
+
+###### Binned
+
+`leaflet::colorBin()` maps numeric input data to a fixed number of output colors using binning (slicing the input domain up by value). To divide input values into bins of equal range is only appropriate for variables with a uniform distribution and is not recommended for variables with a skewed distribution as the resulting map may end up having little color diversity.
 
 You can specify either the exact breaks to use, or the desired number of bins. Note that in the latter case, if `pretty = TRUE` (the default) you’ll end up with nice round breaks but not necessarily the number of bins you wanted.
 
@@ -908,8 +920,8 @@ labels <- sprintf(
 binpal <- leaflet::colorBin(
   palette = "Blues", 
   domain = rwb_map_2025$score, 
-  bins = 9, 
-  pretty = FALSE)
+  bins = 15, 
+  pretty = TRUE)
 
 leaflet::leaflet(rwb_map_2025) |> 
   leaflet::setView(0, 45, 2) |>
@@ -919,12 +931,370 @@ leaflet::leaflet(rwb_map_2025) |>
     fillOpacity = 1,
     color = ~binpal(score),
     label = labels
-  ) 
+  ) |> 
+  leaflet::addLegend(pal = binpal, values = ~score, opacity = 0.7, title = NULL,
+  position = "bottomleft")
 ```
 
 ::::
 :::::
 ::: 
+
+::: {.callout-note #nte-042-pretty-true}
+I have use in @lst-042-colors-binned the `pretty = TRUE` argument, otherwise I would get very weird bins starting with `11.320-20.319` and ending with `83.311-92.310`. In this case I get with `pretty = TRUE` not only nice boundaries but also the desired number of bins (nine).
+:::
+
+###### Quantiled
+
+`leaflet::colorQuantile()` maps numeric input data to a fixed number of output colors using quantiles (slicing the input domain into subsets with equal numbers of observations). This has the potential disadvantage that bin ranges can vary widely.
+
+::: {.column-page-inset}
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-042-colors-quantile}
+: Choropleth map with quantiled colors for 2025 WPF Index
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-042-colors-quantiled
+#| lst-label: lst-042-colors-quantiled
+#| fig-cap: "Choropleth map for the global score 2025 of the World Press Freedom Index. Every bin has the same numbers of observations."
+#| lst-cap: "Choropleth map for the WPFI 2025 with fixed number of output colors using quantiles."
+#| fig-height: 8
+#| fig-width: 7
+
+rwb_map_2025 <- readRDS(paste0(here::here(), "/data/chap041/rwb_map_2025.rds"))
+
+labels <- sprintf(
+  "<strong>%s</strong><br/>score: %g",
+  rwb_map_2025$country_en, rwb_map_2025$score
+) |>  lapply(htmltools::HTML)
+
+# Create a discrete palette function
+
+qpal <- leaflet::colorQuantile(
+  palette = "Blues", 
+  domain = rwb_map_2025$score, 
+  n = 9
+  )
+
+leaflet::leaflet(rwb_map_2025) |> 
+  leaflet::setView(0, 45, 2) |>
+  leaflet::addPolygons(
+    stroke = FALSE, 
+    smoothFactor = 0.5, 
+    fillOpacity = 1,
+    color = ~qpal(score),
+    label = labels
+  ) |> 
+  leaflet::addLegend(pal = qpal, values = ~score, opacity = 0.7, title = "Global score",
+  position = "bottomleft")
+```
+
+::::
+:::::
+::: 
+
+::: {.callout-note #nte-max-palette-colors}
+Both discrete color scales (@lst-042-colors-binned and @lst-042-colors-quantiled) are generally limited by the maximum number of palette colors. This in nine the case of "Blues". If you override this maximum the program interpolated the colors with a warning message:
+
+> Warning in RColorBrewer::brewer.pal(max(3, n), palette) :
+> n too large, allowed maximum for palette Blues is 9
+> Returning the palette you asked for with that many colors
+:::
+
+#### Categorical data
+
+For categorical data, use `leaflet::colorFactor()`. If the palette contains the same number of elements as there are factor levels, then the mapping will be 1:1; otherwise, the palette will be interpolated to produce the desired number of colors.
+
+You can specify the input domain either by passing a factor or character vector to `domain`, or by providing levels directly using the `levels` parameter (in which case the `domain` will be ignored).
+
+::: {.column-page-inset}
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-042-colors-categorized}
+: Choropleth map with colors representing categories (factors) for the 2025 WPF Index
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-042-colors-categorized
+#| lst-label: lst-042-colors-categorized
+#| fig-cap: "Choropleth map for the five levels of the global situation of the World Press Freedom Index."
+#| lst-cap: "Choropleth map for the five levels of the global situation of the World Press Freedom Index."
+#| fig-height: 8
+#| fig-width: 7
+
+rwb_map_2025 <- readRDS(paste0(here::here(), "/data/chap041/rwb_map_2025.rds"))
+
+rwb_colors <- c("#c6e269", "#ecc33d", "#e29950", "#de643a", "#9f1714" )
+
+labels <- sprintf(
+  "<strong>%s</strong><br/>%s<br/>Score: %g",
+  rwb_map_2025$country_en, rwb_map_2025$score_situation, rwb_map_2025$score 
+) |>  lapply(htmltools::HTML)
+
+# Create a discrete palette function
+
+factpal <- leaflet::colorFactor(
+  palette = rwb_colors, 
+  domain = rwb_map_2025$score_situation, 
+  levels = c("1. Good",
+             "2. Rather Good",
+             "3. Problematic",
+             "4. Difficult",
+             "5. Very Serious"
+            )
+  )
+
+leaflet::leaflet(rwb_map_2025) |> 
+  leaflet::setView(0, 45, 2) |>
+  leaflet::addPolygons(
+    fillColor = ~factpal(score_situation),
+    fillOpacity = 1,
+    smoothFactor = 0.5, 
+    label = labels,
+    stroke = TRUE, 
+    weight = 2,
+    opacity = 1,
+    color = "white",
+    dashArray = "3"
+  ) |> 
+  leaflet::addLegend(pal = factpal, values = ~score_situation, opacity = 1, title = "Score situation",
+  position = "bottomleft")
+```
+
+::::
+:::::
+::: 
+
+### Adding interaction
+
+The next thing we’ll want is to make the polygons highlight as the mouse passes over them. The `leaflet::addPolygon()` function has a `highlight` argument that makes this simple.
+
+
+::: {.column-page-inset}
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-042-adding-interaction}
+: Interactive choropleth map for the 2025 WPF Index
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-042-adding-interaction
+#| lst-label: lst-042-adding-interaction
+#| fig-cap: "Interactive choropleth map of the World Press Freedom Index 2025."
+#| lst-cap: "Interactive choropleth map of the World Press Freedom Index 2025."
+#| fig-height: 8
+#| fig-width: 7
+
+rwb_map_2025 <- readRDS(paste0(here::here(), "/data/chap041/rwb_map_2025.rds"))
+
+rwb_colors <- c("#c6e269", "#ecc33d", "#e29950", "#de643a", "#9f1714" )
+
+labels <- sprintf(
+  "<strong>%s</strong><br/>%s<br/>Score: %g",
+  rwb_map_2025$country_en, rwb_map_2025$score_situation, rwb_map_2025$score 
+) |>  lapply(htmltools::HTML)
+
+# Create a discrete palette function
+
+factpal <- leaflet::colorFactor(
+  palette = rwb_colors, 
+  domain = rwb_map_2025$score_situation, 
+  levels = c("1. Good",
+             "2. Rather Good",
+             "3. Problematic",
+             "4. Difficult",
+             "5. Very Serious"
+            )
+  )
+
+leaflet::leaflet(rwb_map_2025) |> 
+  leaflet::setView(0, 45, 2) |>
+  leaflet::addPolygons(
+    fillOpacity = 1,
+    fillColor = ~factpal(score_situation),
+    smoothFactor = 0.5, 
+    label = labels,
+    stroke = TRUE, 
+    weight = 2,
+    opacity = 1,
+    color = "white",
+    dashArray = "3",
+    highlightOptions = leaflet::highlightOptions(
+    weight = 2,
+    color = "black",
+    dashArray = "",
+    fillOpacity = 1,
+    bringToFront = TRUE)
+  ) |> 
+  leaflet::addLegend(pal = factpal, values = ~score_situation, opacity = 1, title = NULL,
+  position = "bottomleft")
+```
+
+::::
+:::::
+::: 
+
+(The Leaflet.js tutorial also adds an event handler that zooms into a state when it’s clicked. This isn’t currently possible with the {**leaflet**} R package, except with either custom JavaScript or using {**shiny**}, both of which are outside the scope of this example.)
+
+### Custom Info
+
+Now let’s explain how to expose the state names and values to the user, as I already have done.
+
+The Leaflet.js tutorial shows the hovered-over state’s information in a custom control. Again, that’s possible by adding custom JavaScript or using Shiny, but for this example we’ll use the built-in labels feature instead.
+
+We’ll generate the labels by handcrafting some HTML, and passing it to `base::lapply(htmltools::HTML)` so that Leaflet knows to treat each label as HTML instead of as plain text. We’ll also set some label options to improve the style of the label element itself.
+
+It is difficult to use popup information spread over several lines. The best way is to use the `base::stringf()` function.
+
+
+::: {.column-page-inset}
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-042-custom-info}
+: Interactive choropleth map for the 2025 WPF Index with popup info by mouse hovering 
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-042-custom-info
+#| lst-label: lst-042-custom-info
+#| fig-cap: "Interactive choropleth map of the World Press Freedom Index 2025 with popup infos."
+#| lst-cap: "Interactive choropleth map of the World Press Freedom Index 2025 with popup infos."
+#| fig-height: 8
+#| fig-width: 7
+
+rwb_map_2025 <- readRDS(paste0(here::here(), "/data/chap041/rwb_map_2025.rds"))
+
+rwb_colors <- c("#c6e269", "#ecc33d", "#e29950", "#de643a", "#9f1714" )
+
+labels <- sprintf(
+  "<strong>%s</strong><br/>%s<br/>Score: %g",
+  rwb_map_2025$country_en, rwb_map_2025$score_situation, rwb_map_2025$score 
+) |>  lapply(htmltools::HTML)
+
+# Create a discrete palette function
+
+factpal <- leaflet::colorFactor(
+  palette = rwb_colors, 
+  domain = rwb_map_2025$score_situation, 
+  levels = c("1. Good",
+             "2. Rather Good",
+             "3. Problematic",
+             "4. Difficult",
+             "5. Very Serious"
+            )
+  )
+
+leaflet::leaflet(rwb_map_2025) |> 
+  leaflet::setView(0, 45, 2) |>
+  leaflet::addPolygons(
+    fillOpacity = 1,
+    fillColor = ~factpal(score_situation),
+    smoothFactor = 0.5, 
+    label = labels,
+    labelOptions = leaflet::labelOptions(
+      style = list("font-weight" = "normal", padding = "3px 8px"),
+      textsize = "15px",
+      direction = "auto"
+      ),
+    stroke = TRUE, 
+    weight = 2,
+    opacity = 1,
+    color = "white",
+    dashArray = "3",
+    highlightOptions = leaflet::highlightOptions(
+    weight = 2,
+    color = "black",
+    dashArray = "",
+    fillOpacity = 1,
+    bringToFront = TRUE)
+  ) |> 
+  leaflet::addLegend(pal = factpal, values = ~score_situation, opacity = 1, title = NULL,
+  position = "bottomleft")
+```
+
+::::
+:::::
+::: 
+
+@lst-042-custom-info contains the last version of the polygon layer.
+
+### Legend {#sec-042-legend}
+
+As our final step, let’s add a legend. Because we chose to color our map using one of the `color*()` convenience functions, the leaflet::addLegend() function makes it particularly easy to add a legend with the correct colors and intervals. 
+
+I have this already done in @lst-042-continuous-colors and the following code chunks. Here I will display the last version of the polygon layer as in @lst-042-custom-info but for the continuous color scale.
+
+::: {.column-page-inset}
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-042-continuous-color-scale-with-legend}
+: Choropleth map with continuous color scale with legend and all the other explained features
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-042-continuous-color-scale-with-legend
+#| lst-label: lst-042-continuous-color-scale-with-legend
+#| fig-cap: "Choropleth map with continuous color scale with legend and all the other explained features"
+#| lst-cap: "Choropleth map with continuous color scale with legend and all the other explained features"
+#| fig-height: 8
+#| fig-width: 7
+
+rwb_map_2025 <- readRDS(paste0(here::here(), "/data/chap041/rwb_map_2025.rds"))
+
+labels <- sprintf(
+  "<strong>%s</strong><br/>score: %g",
+  rwb_map_2025$country_en, rwb_map_2025$score
+) |>  lapply(htmltools::HTML)
+
+pal <- leaflet::colorNumeric(      
+  palette = "Blues",               
+  domain = rwb_map_2025$score)     
+
+leaflet::leaflet(rwb_map_2025) |> 
+  leaflet::setView(0, 45, 2) |>
+  leaflet::addPolygons(
+    fillOpacity = 1,
+    fillColor = ~pal(score),
+    smoothFactor = 0.5, 
+    label = labels,
+    labelOptions = leaflet::labelOptions(
+      style = list("font-weight" = "normal", padding = "3px 8px"),
+      textsize = "15px",
+      direction = "auto"
+      ),
+    stroke = TRUE, 
+    weight = 2,
+    opacity = 1,
+    color = "white",
+    dashArray = "3",
+    highlightOptions = leaflet::highlightOptions(
+    weight = 2,
+    color = "black",
+    dashArray = "",
+    fillOpacity = 1,
+    bringToFront = TRUE)
+  ) |> 
+  leaflet::addLegend(pal = pal, values = ~score, opacity = 1, title = "Global score",
+  position = "bottomleft")
+```
+
+::::
+:::::
+::: 
+
+
 
 ## Glossary Entries {.unnumbered}
 

@@ -27,6 +27,39 @@ iframe {
   width: 100%; /* takes precedence over the width set with the HTML width attribute */
 }
 
+
+/* ******************************************************************* */
+/* LEAFLET LEGEND TEXT ALIGN LEFT                                      */
+/* ******************************************************************* */
+
+/* 1. worked only for color symbols */
+/* https://stackoverflow.com/a/76569974/7322615 */
+/*
+.info.legend.leaflet-control i {
+  float: left;
+}
+*/
+
+/* 2. worked nicely with Quarto report */
+/* From Brave KI:
+When a leaflet map is included in a Quarto HTML report, any categorical
+legend ends up centered when the chunk is labelled as a figure.
+https://github.com/quarto-dev/quarto-cli/issues/7843
+THERE IS A LONG DISCUSSION WITH MANY CSS PROPOSALS */
+/*
+.quarto-figure-center > figure > p, .quarto-figure-center > figure > div {
+  text-align: left;
+}
+*/
+
+/* 3. This was my solution using Google  browser development 'inspect'
+I changed the CSS for leaflet, not sure if this is the correct/best approach */
+
+.leaflet .info {
+    text-align: left;
+}
+
+
 /* #######################################################################  */
 /*                                                                          */
 /*                           Theorems and friends                           */

@@ -39,8 +39,8 @@ format:
      - quarto.css
      - glossary.css
     number-sections: true
-    toc-depth: 5
-    toc-expand: 4
+    toc-depth: 6
+    toc-expand: true
     toc_float: true
     code-fold: show
     code-tools: true
