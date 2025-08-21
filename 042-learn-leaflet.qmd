@@ -1,6 +1,6 @@
 # Learn Leaflet {#sec-chap042}
 
-August 17-20, 2025
+August 17-21, 2025
 
 ```{r}
 #| label: setup
@@ -1067,7 +1067,7 @@ labels <- sprintf(
 binpal <- leaflet::colorBin(
   palette = "Blues", 
   domain = rwb_map_2025$score, 
-  bins = 15, 
+  bins = 9, 
   pretty = TRUE)
 
 leaflet::leaflet(rwb_map_2025) |> 
@@ -1229,6 +1229,34 @@ leaflet::leaflet(rwb_map_2025) |>
 :::
 ::::::
 :::::::
+
+::: {.callout-warning #wrn-042-leaflet-control-text-align-left}
+###### Leaflet control needs CSS patch with `text-align: left;`
+
+> When a leaflet map is included in a Quarto HTML report, any categorical
+legend ends up centered when the chunk is labelled as a figure.
+<https://github.com/quarto-dev/quarto-cli/issues/7843>
+
+I provided my own rule to solve this issue:
+
+```
+.leaflet .info {
+    text-align: left;
+}
+```
+
+But this solved only the legend text and not other Leaflet controls (like `leaflet::addLayersControl()`). The solution for both kind of issues is:
+
+
+```
+div.leaflet-control {
+  text-align: left;
+}
+```
+
+
+See the extensive disussion in the [quarto-cli GitHub repo](https://github.com/quarto-dev/quarto-cli/issues/7843).
+:::
 
 ### Adding interaction
 
@@ -1483,7 +1511,7 @@ leaflet::leaflet(rwb_map_2025) |>
 ::::::
 :::::::
 
-## Popup and Labels
+## Popups and Labels {#sec-042-popups-and-labels}
 
 ### Popups
 
@@ -1904,6 +1932,553 @@ leaflet::leaflet(rwb_map_2025) |> # country data with geometry
 :::
 ::::::
 :::::::
+
+## SHow/Hide Layers
+
+The Leaflet package includes functions to show and hide map layers. You can allow users to decide what layers to show and hide, or programmatically control the visibility of layers using [server-side code in Shiny](https://rstudio.github.io/leaflet/articles/shiny.html).
+
+In both cases, the fundamental unit of showing/hiding is the **group.**
+
+### Understanding Groups
+
+A group is a label given to a set of layers. You assign layers to groups by using the group parameter when adding the layers to the map.
+
+```{r}
+#| label: demo-groups
+#| eval: false
+
+leaflet() |>  
+  addTiles() |>
+  addMarkers(data = coffee_shops, group = "Food & Drink") |>
+  addMarkers(data = restaurants, group = "Food & Drink") |>
+  addMarkers(data = restrooms, group = "Restrooms")
+```
+
+Many layers can belong to same group. But each layer can only belong to zero or one groups (you can’t assign a layer to two groups).
+
+**Groups vs. Layer IDs**
+
+Groups and [Layer IDs](https://rstudio.github.io/leaflet/articles/shiny.html#understanding-layer-ids) may appear similar, in that both are used to assign a name to a layer. However, they differ in that layer IDs are used to provide a [unique identifier to individual]{.mark} markers and shapes, etc., while groups are used to give [shared labels to many]{.mark} items.
+
+You generally provide one group value for the entire `leaflet::addMarkers()` call, and you can reuse that same group value in future `leaflet::add*()` calls to add to that group’s membership (as in the example above).
+
+`layerId` arguments are *always* vectorized: when calling e.g., `leaflet::addMarkers()` you need to provide one layer ID per marker, and they must all be unique. If you add a circle with a layer ID of `"foo"` and later add a different shape with the same layer ID, the original circle will be removed.
+
+::: {.callout-note #nte-groups-vs-layers}
+##### Differences between group and layer ID not yet clear for me
+
+I do not understand what the differences are, because I am lacking knowledge about layers ID as well as about groups. I hope that this issue will be clarified later on.
+:::
+
+### Interactive Layer Display
+
+You can use Leaflet’s layers control feature to allow users to toggle the visibility of groups.
+
+This time I will copy the example from the documentation. If I understand the concept better I will try to use my own RWB dataset.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-042-interactive-layer-display-demo}
+: Demonstration of interactive layer display with earth quake data
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-042-interactive-layer-display-demo
+#| lst-label: lst-042-interactive-layer-display-demo
+#| fig-cap: "Demonstration of interactive layer display with earth quake data"
+#| lst-cap: "Demonstration of interactive layer display with earth quake data"
+
+outline <- quakes[chull(quakes$long, quakes$lat),]
+
+map <- leaflet::leaflet(quakes) |>
+  # Base groups
+  leaflet::addTiles(group = "OSM (default)") |>
+  leaflet::addProviderTiles(
+    leaflet::providers$CartoDB.Positron, group = "Positron (minimal)") |>
+  leaflet::addProviderTiles(
+    leaflet::providers$Esri.WorldImagery, group = "World Imagery (satellite)") |>
+  # Overlay groups
+  leaflet::addCircles(
+    ~ long,
+    ~ lat,
+    ~ 10 ^ mag / 5,
+    stroke = FALSE,
+    group = "Quakes",
+    fillColor = "tomato"
+  ) |>
+  leaflet::addPolygons(
+    data = outline,
+    lng = ~ long,
+    lat = ~ lat,
+    fill = FALSE,
+    weight = 2,
+    color = "#FFFFCC",
+    group = "Outline"
+  ) |>
+  # Layers control
+  leaflet::addLayersControl(
+    baseGroups = c(
+      "OSM (default)",
+      "Positron (minimal)",
+      "World Imagery (satellite)"
+    ),
+    overlayGroups = c("Quakes", "Outline"),
+    options = leaflet::layersControlOptions(collapsed = FALSE)
+  )
+
+map
+```
+
+::::
+:::::
+
+::: {.callout-note #nte-leaflet-providers}
+##### Where to get Leaflet providers?
+
+The Leaflet providers are stored in the {**leaflet.extras**} package and can be inspected with mini maps on the [Leaflet-provider preview](https://leaflet-extras.github.io/leaflet-providers/preview/). Choosing the desired provider you will also get on this page the exact code for the provider name.
+:::
+
+`leaflet::addLayersControl()` distinguishes between base groups, which can only be viewed one group at a time, and overlay groups, which can be individually checked or unchecked.
+
+Although base groups are generally tile layers, and overlay groups are usually markers and shapes, there is no restriction on what types of layers can be placed in each category.
+
+Only one layers control can be present on a map at a time. If you call `leaflet::addLayersControl()` multiple times, the last call will win.
+
+### Programmatic Layer Display
+
+You can use `leaflet::showGroup()` and `leaflet::hideGroup()` to show and hide groups from code. This mostly makes sense in a [Shiny context with `leafletProxy`](https://rstudio.github.io/leaflet/articles/shiny.html), where perhaps you might toggle group visibility based on input controls in a sidebar.
+
+You can also use `leaflet::showGroup()`/`leaflet::hideGroup()` in conjunction with `leaflet::addLayersControl()` to set which groups are checked by default.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-042-show-hide-group}
+: Example shows how to hide a group
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-042-show-hide-group
+#| lst-label: lst-042-show-hide-group
+#| lst-cap: "Hide the outline group"
+#| fig-cap: "Example shows how to hide a group. In this case the outline is hidden. Compare this figure with @fig-042-interactive-layer-display-demo"
+
+map |>  hideGroup("Outline")
+```
+
+::::
+:::::
+
+Finally, you can remove the layers in a group using `leaflet::clearGroup()`. Note that this doesn’t just remove the layers from the group, it also removes them from the map. (It does not, however, remove the group itself from the map; it still exists, but is empty.)
+
+### With Markers Cluster
+
+If markers are added to different groups, and when using marker clustering as described in the [marker page](https://rstudio.github.io/leaflet/articles/markers.html), {**leaflet**} will generate different sets of clusters for different groups. This allows showing/hiding of marker clusters belonging to a group independently of other marker clusters in other groups.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-042-layers-and-marker-clusters}
+: Show / hide layers with marker clusters
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-042-layers-and-marker-clusters
+#| lst-label: lst-042-layers-and-marker-clusters
+#| lst-cap: "Show / hide layers with marker clusters"
+#| fig-cap: "Show / hide layers with marker clusters. Click at the colored circle to see the clustered markers"
+
+
+quakes <- quakes |>
+  dplyr::mutate(mag.level = cut(mag,c(3,4,5,6),
+                                labels = c('>3 & <=4', '>4 & <=5', '>5 & <=6')))
+
+quakes.df <- base::split(quakes, quakes$mag.level)
+
+l <- leaflet::leaflet() |> leaflet::addTiles()
+
+base::names(quakes.df) |>
+  purrr::walk( function(df) {
+    l <<- l |>
+      leaflet::addMarkers(
+        data = quakes.df[[df]],
+        lng =  ~ long,
+        lat =  ~ lat,
+        label =  ~ as.character(mag),
+        popup =  ~ as.character(mag),
+        group = df,
+        clusterOptions = leaflet::markerClusterOptions(removeOutsideVisibleBounds = FALSE),
+        labelOptions = leaflet::labelOptions(noHide = FALSE, direction = 'auto')
+      )
+  })
+
+l |>
+  leaflet::addLayersControl(
+    overlayGroups = base::names(quakes.df),
+    options = leaflet::layersControlOptions(collapsed = FALSE)
+  )
+```
+
+::::
+:::::
+
+### Layers with RWB data
+
+This section end here with the complex example in @cnj-042-layers-and-marker-clusters.
+
+The question arises: How can I apply the show/hide layers feature to my RWB data? Several options come to my mind:
+
+- Different layers for different years
+- Different layers for the different components of the global score.
+
+I will try the second option with my `rwb_map_2025` data.
+
+::: {.column-page-inset}
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-042-score-component-layers}
+: RWB global score 2025 and its different component scores as layers
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-042-score-component-layers
+#| lst-label: lst-042-score-component-layers
+#| lst-cap: "RWB global score 2025 with its component scores as different layers"
+#| fig-cap: "RWB global score 2025 with its component scores as different layers"
+#| fig-height: 8
+#| fig-width: 7
+
+rwb_map_2025 <- readRDS(paste0(here::here(), "/data/chap041/rwb_map_2025.rds"))
+
+labels <- sprintf(
+  "<strong>%s</strong><br/>Global score: %g",
+  rwb_map_2025$country_en, rwb_map_2025$score
+) |>  lapply(htmltools::HTML)
+
+economic_labels <- sprintf(
+  "<strong>%s</strong><br/>Economical Score: %g",
+  rwb_map_2025$country_en, rwb_map_2025$economic
+) |>  lapply(htmltools::HTML)
+
+# Create a discrete palette function
+
+binpal <- leaflet::colorBin(
+  palette = "Blues", 
+  domain = rwb_map_2025$score, 
+  bins = 9, 
+  pretty = TRUE)
+
+economic_binpal <- leaflet::colorBin(
+  palette = "Blues", 
+  domain = rwb_map_2025$economic, 
+  bins = 9, 
+  pretty = TRUE)
+
+leaflet::leaflet(rwb_map_2025) |> 
+  leaflet::setView(0, 45, 2) |>
+  leaflet::addPolygons(
+    stroke = TRUE, 
+    weight = 2,
+    color = "white",
+    dashArray = "3",
+    opacity = 1,
+    smoothFactor = 0.5, 
+    fillOpacity = 1,
+    fillColor = ~binpal(score),
+    label = labels,
+    group = "Global Score",
+    highlightOptions = leaflet::highlightOptions(
+    weight = 2,
+    color = "black",
+    dashArray = "",
+    fillOpacity = 1,
+    bringToFront = TRUE)
+  ) |> 
+    leaflet::addPolygons(
+    stroke = TRUE,
+    weight = 2,
+    color = "white",
+    dashArray = "3",
+    opacity = 1,
+    smoothFactor = 0.5, 
+    fillOpacity = 1,
+    fillColor = ~economic_binpal(economic),
+    label = economic_labels,
+    group = "Economical Score",
+    highlightOptions = leaflet::highlightOptions(
+    weight = 2,
+    color = "black",
+    dashArray = "",
+    fillOpacity = 1,
+    bringToFront = TRUE)
+  ) |> 
+  # Layers control
+  leaflet::addLayersControl(
+    baseGroups = c(
+      "Global Score",
+      "Economical Score"
+    ),
+    options = leaflet::layersControlOptions(collapsed = FALSE)
+  ) |> 
+  leaflet::addLegend(pal = binpal, values = ~score, opacity = 0.7, title = NULL,
+  position = "bottomleft")
+```
+
+::::
+:::::
+
+::: 
+
+
+::: {.callout-note #nte-042-layers-vs-shiny}
+##### Layers in Shiny?
+
+To choose between different layers is a very nice {**leaflet**} option. But I am not sure if I need this feature using {**shiny**}. With Shiny I could control the option outside Leaflet and then programmatically control the options of the map.
+:::
+
+## Add Markers to Leaflet
+
+For my use case of `r glossary("choropleth")` maps I do not need specialized marker. The only occasion I could image is to show country data as line graphs, scatterplots, bump graphs, tables etc. where a small map with a marker at the country position could helpful. (See my experiments in "Popup and Labels" @sec-042-popups-and-labels).
+
+Another possibility I could imagine is to highlight the best / worst five countries with markers for different absolute scores or changes from one year to the next. This could be a nice supplement to the continuous or discrete map color distribution.
+
+
+But these ideas are somewhat far fetched, respectively not essential to my planned dashboard. Therefore I will skip the article ["Add Markers to Leaflet"](https://rstudio.github.io/leaflet/articles/markers.html) for the moment (2025-08-21). If I really would need this feature then I will come back here and experiment with the settings for adding markers.
+
+## Legends
+
+Again I will skip this section on [Legends](https://rstudio.github.io/leaflet/articles/legends.html) as I have already incorporated different legends into my maps. For specialized needs I will come back to this section.
+
+## Lines and Shapes
+
+For choropleth maps I have no special needs at the moment for the article on [Lines and Shapes](https://rstudio.github.io/leaflet/articles/shapes.html). Highlights I have already used, circles and rectangles are not of any concern at the moment. One exception why I would get into this section in a detailed learning mode might be the simplification of complex polygons by using the {**rmapshaper**} package, which does topology-preserving simplification from R.
+
+## Using Basemaps
+
+Leaflet supports basemaps using [map tiles](https://www.mapbox.com/guides/how-web-maps-work/), popularized by Google Maps and now used by nearly all interactive web maps.
+
+AT the world level the choice of basemaps are not important in choropleth maps. But when you zoom into a region {**leaflet**} shows the details of the region using the underlying basemap.
+
+Default [OpenStreetMap](https://www.openstreetmap.org/) Tiles
+
+The easiest way to add tiles is by calling `leaflet::addTiles()` with no arguments; by default, `r glossary("OpenStreetMap")` tiles are used. [OpenStreetMap](https://www.openstreetmap.org/) tiles are generally sufficient for my choropleth use case. So I do not continue to follow the rest of the article on [Using Basemaps](https://rstudio.github.io/leaflet/articles/basemaps.html).
+
+## Working with GeoJSON & TopoJSON
+
+Skipped.
+
+## Raster Images
+
+No need as choropleth maps use vector data. 
+
+## Working with projections in Leaflet
+
+For advanced use! 
+
+The Leaflet package expects all point, line, and shape data to be specified in latitude and longitude using `r glossary("WGS84")` (a.k.a. `r glossary("EPSG")`:4326). By default, when displaying this data it projects everything to [EPSG:3857](https://spatialreference.org/ref/epsg/3857/) and expects that any map tiles are also displayed in EPSG:3857.
+
+For users that need to display data with a different projection, we’ve integrated the [Proj4Leaflet](https://github.com/kartena/Proj4Leaflet) plugin, which in theory gives Leaflet access to any `r glossary("CRS")` that is supported by [Proj4js](http://proj4js.org/).
+
+Note that whatever map tiles you use they must be designed to work with the CRS of your Leaflet map.
+
+(I stopped here, because I do not know if I will need this advanced and detailes information.)
+
+## Using Leaflet with Shiny
+
+::: {.callout-important #imp-042-using-leaflet-with-shiny}
+###### My plan is to use {**leaflet**} with {**shiny**}
+
+This is article is of special interest for me, because I am planning a Shiny dashboard where the map displays are provided by {**leaflet**}.
+:::
+
+### Introduction
+
+The Leaflet package includes powerful and convenient features for integrating with Shiny applications.
+
+Most Shiny output widgets are incorporated into an app by including an output (e.g., `shiny::plotOutput())` for the widget in the UI definition, and using a render function (e.g., `shiny::renderPlot())` in the server function. Leaflet maps are no different; in the UI you call `leaflet::leafletOutput()`, and on the server side you assign a `leaflet::renderLeaflet()` call to the output. Inside the `leaflet::renderLeaflet()` expression, you return a Leaflet map object.
+
+
+::: {.column-page-inset}
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-042-leaflet-shiny-demo}
+: {**leaflet**} with {**shiny**} demonstration
+::::::
+:::
+::::{.my-r-code-container}
+
+```{shinylive-r}
+#| standalone: true
+#| viewerHeight: 550
+#| components: [editor, viewer]
+
+
+library(shiny)
+library(leaflet)
+
+### don't need the next two lines
+# r_colors <- rgb(t(col2rgb(colors()) / 255))
+# names(r_colors) <- colors()
+
+ui <- fluidPage(
+  leafletOutput("mymap"),
+  p(),
+  actionButton("recalc", "New points")
+)
+
+server <- function(input, output, session) {
+
+  points <- eventReactive(input$recalc, {
+    cbind(rnorm(40) * 2 + 13, rnorm(40) + 48)
+  }, ignoreNULL = FALSE)
+
+  output$mymap <- renderLeaflet({
+    leaflet() |> 
+      addProviderTiles(providers$CartoDB.Positron,
+        options = providerTileOptions(noWrap = TRUE)
+      )  |> 
+      addMarkers(data = points())
+  })
+}
+
+shinyApp(ui, server)
+```
+
+
+::::
+:::::
+::: 
+
+### Modifying Existing Maps with `leafletProxy`
+
+The code in @cnj-042-leaflet-shiny-demo works, but reactive inputs and expressions that affect the `leaflet::renderLeaflet()` expression will cause the entire map to be redrawn from scratch and reset the map position and zoom level.
+
+For some situations that may be acceptable or desirable behavior. But in other situations, you may want finer-grained control over the map, such as changing the color of a single polygon or adding a marker at the point of a click – without redrawing the entire map.
+
+To modify a map that’s already running in the page, you use the `leaflet::leafletProxy()` function in place of the `leaflet::leaflet()` call, but otherwise use Leaflet function calls as normal.
+
+Normally you use {**leaflet**} to create the static aspects of the map, and `leaflet::leafletProxy()` to manage the dynamic elements, like so:
+
+::: {.column-page-inset}
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-042-using-leafletproxy}
+: Static and dynamic procedures for a Leaflet map in Shiny
+::::::
+:::
+::::{.my-r-code-container}
+
+
+```{shinylive-r}
+#| standalone: true
+#| viewerHeight: 550
+#| components: [editor, viewer]
+
+library(shiny)
+library(leaflet)
+library(RColorBrewer)
+
+r_colors <- rgb(t(col2rgb(colors()) / 255))
+names(r_colors) <- colors()
+
+ui <- bootstrapPage(
+  tags$style(type = "text/css", "html, body {width:100%;height:100%}"),
+  leafletOutput("map", width = "100%", height = "100%"),
+  absolutePanel(top = 10, right = 10,
+    sliderInput("range", "Magnitudes", min(quakes$mag), max(quakes$mag),
+      value = range(quakes$mag), step = 0.1
+    ),
+    selectInput("colors", "Color Scheme",
+      rownames(subset(brewer.pal.info, category %in% c("seq", "div")))
+    ),
+    checkboxInput("legend", "Show legend", TRUE)
+  )
+)
+
+server <- function(input, output, session) {
+
+  # Reactive expression for the data subsetted to what the user selected
+  filteredData <- reactive({
+    quakes[quakes$mag >= input$range[1] & quakes$mag <= input$range[2],]
+  })
+
+  # This reactive expression represents the palette function,
+  # which changes as the user makes selections in UI.
+  colorpal <- reactive({
+    colorNumeric(input$colors, quakes$mag)
+  })
+
+  output$map <- renderLeaflet({
+    # Use leaflet() here, and only include aspects of the map that
+    # won't need to change dynamically (at least, not unless the
+    # entire map is being torn down and recreated).
+    leaflet(quakes) |> addTiles()  |> 
+      fitBounds(~min(long), ~min(lat), ~max(long), ~max(lat))
+  })
+
+  # Incremental changes to the map (in this case, replacing the
+  # circles when a new color is chosen) should be performed in
+  # an observer. Each independent set of things that can change
+  # should be managed in its own observer.
+  observe({
+    pal <- colorpal()
+
+    leafletProxy("map", data = filteredData())  |> 
+      clearShapes() |> 
+      addCircles(radius = ~10^mag/10, weight = 1, color = "#777777",
+        fillColor = ~pal(mag), fillOpacity = 0.7, popup = ~paste(mag)
+      )
+  })
+
+  # Use a separate observer to recreate the legend as needed.
+  observe({
+    proxy <- leafletProxy("map", data = quakes)
+
+    # Remove any existing legend, and only if the legend is
+    # enabled, create a new one.
+    proxy  |>  clearControls()
+    if (input$legend) {
+      pal <- colorpal()
+      proxy |> addLegend(position = "bottomright",
+        pal = pal, values = ~mag
+      )
+    }
+  })
+}
+
+shinyApp(ui, server)
+```
+
+::::
+:::::
+
+::: 
+
+::: {.callout-caution #cau-042-example-not-working}
+
+####### @cnj-042-using-leafletproxy is not working
+
+The code chunk does not generate an error, but the example does not show the colored earthquakes bubbles and legend. It does not react to changes from the UI.
+
+I didn't yet try to debug the code. The content of the example is not important for me. It is the general idea that counts and the idea I have understood.
+
+:::
+
+
+::: {.callout-note #nte-042-conclusion}
+##### Complex code with simple central idea
+
+@cnj-042-using-leafletproxy is a complex example, but the main idea is pretty clear: 
+
+- For all parts of the leaflet map, that will not be changed with Shiny controls use `leaflet::leaflet()` inside `leaflet::renderLeaflet()`. 
+- For all the dynamic parts of the map, e.g., those parts that could be changed through the UI use `leaflet::leafletProxy()` inside an observer.
+:::
+
 
 ## Glossary Entries {.unnumbered}
 
