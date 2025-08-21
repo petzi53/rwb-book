@@ -16,21 +16,17 @@ book:
 
   chapters:
     - index.qmd
-    - part: "Prepare Data"
-      chapters:
-        - 011-get-rwb-data.qmd
-        - 012-get-m49-data.qmd
-        - 013-get-map-data.qmd
-        - 021-prepare-m49-data.qmd
-        - 022-prepare-rwb-data.qmd
-        - 023-prepare-map-data.qmd
-        - 031-rwb-2022-2025.qmd
-    - part: "Some Experiments"
-      chapters:
-        - 041-map-2022-2025.qmd
-    - part: "Learn Leaflet"
-      chapters:
-        - 042-learn-leaflet.qmd
+    - 011-get-rwb-data.qmd
+    - 012-get-m49-data.qmd
+    - 013-get-map-data.qmd
+    - 021-prepare-m49-data.qmd
+    - 022-prepare-rwb-data.qmd
+    - 023-prepare-map-data.qmd
+    - 031-rwb-2022-2025.qmd
+    - 041-map-2022-2025.qmd
+    - 051-learn-leaflet-1.qmd
+    - 052-learn-leaflet-2.qmd
+    - 053-learn-leaflet-3.qmd
 
 bibliography:
     - references.bib
@@ -140,8 +136,8 @@ language:
 #   crossref-int-title: "Interpretation"
 
 # https://github.com/quarto-dev/quarto-cli/blob/main/src/resources/language/_language.yml
-   callout-tip-title: "Tip"              # green  (tip)
-   callout-note-title: "Note"            # blue   (nte)
-   callout-warning-title: "Warning"      # orange (wrn)
-   callout-important-title: "Important"  # red    (imp)
-   callout-caution-title: "Caution"      # yellow (cau)
+   callout-tip-title: "Report"           # green
+   callout-note-title: "Note"            # blue
+   callout-warning-title: "Watch out!"   # orange
+   callout-important-title: "Important"  # red
+   callout-caution-title: "Typo"         # yellow

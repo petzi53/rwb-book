@@ -53,24 +53,11 @@ THERE IS A LONG DISCUSSION WITH MANY CSS PROPOSALS */
 */
 
 /* 3. This was my solution using Google  browser development 'inspect'
-But this worked only with legends, not with group controls/
+I changed the CSS for leaflet, not sure if this is the correct/best approach */
 
-/*
 .leaflet .info {
     text-align: left;
 }
-*/
-
-
-/* 4. Finally I settled for the pre-last proposal by cderv
-https://github.com/quarto-dev/quarto-cli/issues/7843#issuecomment-1847350443
-*/
-
-div.leaflet-control {
-  text-align: left;
-}
-
-
 
 
 /* #######################################################################  */
