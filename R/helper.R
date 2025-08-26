@@ -345,6 +345,62 @@ my_as_tibble_sf <- function(df) {
   }
 }
 
+##### my_get_dir_files    #######################################
+# my_get_dir_files: Get all files  from a directory
+# Purpose:
+# Load all files of a specified path  with a specified  file extension into memory
+# Author: Peter Baumgartner
+# path = character string, starting from here::here()
+# pattern = regex expression, for instance "\\.rds$"
+my_get_dir_files <-  function(path, pattern){
+  get_file_names <- list.files(
+    path = path,
+    pattern = pattern,
+    full.names = TRUE
+  )
+  for (i in seq_along(get_file_names)) {
+    file_name_with_ext <- basename(get_file_names[i])   # remove path to get base name
+    file_name <- gsub(pattern, "", file_name_with_ext) # remove the .rds extension
+    assign(                                              # assign dataset to name in environment
+      file_name,
+      readRDS(paste0(here::here(), "/", get_file_names[i])),
+      envir = parent.frame()
+    )
+  }
+}
+
+
+my_df_recoded <- function(df, col_name) {
+  df |>
+    dplyr::mutate(
+      "{{col_name}}" := dplyr::if_else({{col_name}} < 100, {{col_name}} * 100, {{col_name}}),
+      "{{col_name}}" := dplyr::if_else({{col_name}} < 1000, {{col_name}} * 10, {{col_name}}),
+      "{{col_name}}" := dplyr::if_else({{col_name}} > 10000, round({{col_name}} / 10), {{col_name}}),
+      "{{col_name}}" := {{col_name}} / 100
+    )
+}
+
+
+
+
+my_rwb_rec <- function(df) {
+  for (i in seq_along(df)) {
+    df1 <- df |>
+      my_df_recoded(score) |>
+      my_df_recoded(score_n_1) |>
+      dplyr::mutate(score_evolution = score - score_n_1)
+    if ("political_context" %in% names(df1)) {
+      df1 <- df1 |>
+        my_df_recoded(political_context) |>
+        my_df_recoded(economic_context) |>
+        my_df_recoded(legal_context) |>
+        my_df_recoded(social_context) |>
+        my_df_recoded(safety)
+    }
+    file_name = paste0("rwb", df1$year_n[1])
+    assign(file_name, df1, envir = globalenv())
+  }
+}
 
 ################################################################
 #
