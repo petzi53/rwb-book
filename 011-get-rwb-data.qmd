@@ -52,7 +52,10 @@ So I just have to change the year of the `r glossary("CSV")` file name.
 
 ```{r}
 #| label: get-rwb-data
+#| eval: false
 
+
+base::source(file = "R/helper.R")
 url <- "https://rsf.org/sites/default/files/import_classement/"
 
 rsf_year <- function(year) {
@@ -94,7 +97,7 @@ Download and store datasets from RWB website
 
 The side effect of @lst-011-get-rwb-data is a collection of data files from 2002 to 2025 (2011 missing) with the structure of `rsf<year>.rds`.
 
-## Inspect RWB data
+## Clean RWB data
 
 A manual inspections of the RSF website and of the downloaded dataset reveals three different structures of RWB datasets. My aim is to create one dataset for the whole time range 2012-2025. Therefore I have to compare the structure of the different dataset.
 
@@ -132,6 +135,8 @@ my_get_dir_files("data/chap011/rsf", "\\.rds$")
 :::::
 
 ### Batch 1: 2022-2025
+
+#### Compare structure
 
 Data frames of the years 2022-2025 contain the most complete datasets. From 2022 onwards there is a new [Methodology used for compiling the World Press Freedom Indices](https://rsf.org/en/methodology-used-compiling-world-press-freedom-index-2025) worked out by panel of experts.
 
@@ -182,6 +187,8 @@ In graphs comparing global score values for years with different methods it woul
 
 :::
 
+#### Adapt 2022 dataset
+
 :::::{.my-r-code}
 :::{.my-r-code-header}
 :::::: {#cnj-011-add-2022-columns}
@@ -189,6 +196,8 @@ In graphs comparing global score values for years with different methods it woul
 ::::::
 :::
 ::::{.my-r-code-container}
+
+<center>**Run this code chunk manually if the 2022 still needs to be adapted**</center>
 
 ```{r}
 #| label: add-2022-columns
@@ -199,11 +208,16 @@ rsf2021_short <- readRDS(paste0(here::here(), "/data/chap011/rsf/rsf2021.rds")) 
     dplyr::select(c(ISO, `Score N`)) |> 
     dplyr::rename(`Score N-1` = `Score N`)
 
-rsf2022 <- readRDS(paste0(here::here(), "/data/chap011/rsf/rsf2022.rds")) |> 
+rsf2022 <- readRDS(paste0(here::here(), "/data/chap011/rsf/rsf2022.rds"))
+
+## check if columns for rsf2022 are already present
+if (!"Score evolution" %in% names(rsf2022)) {
+  rsf2022 <- rsf2022 |> 
     dplyr::left_join(rsf2021_short, "ISO") |> 
     dplyr::mutate(`Score evolution` = Score - `Score N-1`)
 
-my_save_data_file("chap011/rsf", rsf2022, "rsf2022.rds")
+  my_save_data_file("chap011/rsf", rsf2022, "rsf2022.rds")
+}
 
 rsf2022
 ```
@@ -228,12 +242,13 @@ A further detailed examination revealed that
 - [Trailing zeros are not displayed.]{.mark} Instead of `883` for Ireland the value is `8830`, or `80.30` for the scale of 0-100. There are also some values with only two figures, representing values with *two* trailing zeros.
 - Reviewing thoroughly other years it turned out that some years [distinguishes ties with the addition of another figure added as a (silent) comma position.]{.mark} Instead of `65.487` for the USA  and `64.486` for Gambia in 2025 we have `65487` and `65486`.
 
-As this inconsistencies cover the years 2022-2025 but also 2013-2021 **I have to clean up these inconsistencies later when I put together these two batches of datasets.**
 ::::
 :::::
 
+#### Compare column types
 
 Before we can bind the datasets 2022-2025 together we have to solve another issue. A glimpse at the data shows that for the years 2023-2025 `Score evolution` is of type `character` with comma values (e.g., `"0,63"`)  instead of type `double` with a decimal point (e.g., `0.63`) as used in R for decimals. To bind rows for the data of different years together we have not only to match different column names but also the types of columns.
+
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
@@ -265,7 +280,7 @@ Another issue we should clean up, is that some country names even in the English
 
 By this occasion we learn that all regional names for *all* years in `Zone` are not in English but in French. 
 
-
+#### Clean column structure
 
 
 :::::{.my-r-code}
@@ -344,11 +359,13 @@ get_rsf_recoded1(2022:2025, load_path)
 ::::
 :::::
 
+#### Clean values
+
 We are now in the position to clean the values and bind the datasets 2022-2025 by rows together. By this occasion we will create a function because we need most of code also for the other two batches.
 
 :::::{.my-procedure}
 :::{.my-procedure-header}
-:::::: {#prp-011-clean-values}
+:::::: {#prp-011-clean-values-2022-2025}
 : Clean values for the datasets 2022-2025
 ::::::
 :::
@@ -362,9 +379,9 @@ Let's resume what we want to clean up:
     - Divide all scores bigger than 10000 by 10
     - Divide the new numbers by 100 to get the correct decimal scores
     - Update `score_evolution` by subtract `score_n_1` from `score`. (This last step is only necessary for the 2022 dataset, but I will do it as a measure of precaution for all.)
-3. **Create for every score column a new factor column with five bins:** Use as bin names and limits the classification of the press freedom map as outlined in the [methodology article for 2022 onwards](https://rsf.org/en/methodology-used-compiling-world-press-freedom-index-2025). Use as names for these new columns the addition of `_situation` to their original score column. Reorder the new created columns from their last place to the place immediately after the score column that was indicative for the situation assessment.
+3. **Create for every score column a new factor column with five bins:** Use as bin names and for the limits the classification of the press freedom map as outlined in the [methodology article for 2022 onwards](https://rsf.org/en/methodology-used-compiling-world-press-freedom-index-2025). Use as names for these new columns the addition of `_situation` to their original score column. Reorder the new created columns from their last place to the place immediately after the score column that was indicative for the situation assessment.
 4. **Change all columns with type `character` into columns of type `factor`**
-5. **Change the French regional names of the `Zone` column to their English equivalent**
+
 
 ::::
 :::::
@@ -381,8 +398,8 @@ Let's resume what we want to clean up:
 
 ```{r}
 #| label: clean-values-2022-2025
-#| lst-label: lst-011-cleam-values-2022-2025
-#| lst-cap: "Follow the procedure of @prp-011-clean-values and clean values for the RWB datasets 2022-2025"
+#| lst-label: lst-011-clean-values-2022-2025
+#| lst-cap: "Follow the procedure of @prp-011-clean-values-2022-2025 and clean values for the RWB datasets 2022-2025"
 #| eval: false
 
 base::source(file = "R/helper.R")
@@ -413,6 +430,8 @@ my_save_data_file("chap011/rwb", rwb1, "rwb1.rds")
 
 ### Batch 2: 2013-2021
 
+#### Compare structure
+
 We are now going to inspect the second batch of datasets: The data form the years 2013-2021.
 
 :::::{.my-r-code}
@@ -434,17 +453,34 @@ janitor::compare_df_cols(rsf2021, rsf2018, rsf2016, rsf2013)
 ::::
 :::::
 
-The data frames from the years 2013 to 2021 are quite different. Datasets from 2013 to 2021 have only 16 columns, because they have only the global score. All the `context` variables and the `safety` column are missing. Although from 2022 onwards the questionnaire used completely different indicators one could compare the countries over the years with their *global* scores See Methodological consideration in @imp-011-methodological-considerations. There is nothing to clean up: The `context` variable are only available in the first batch of datsets.
+The data frames from the years 2013 to 2021 are quite different. Datasets from 2013 to 2021 have only 16 columns, because they have only the global score. All the `context` variables and the `safety` column are missing. Although from 2022 onwards the questionnaire used completely different indicators one could compare the countries over the years with their *global* scores See Methodological consideration in @imp-011-methodological-considerations. There is nothing to clean up: The `context` variable are only available in the first batch of datasets.
 
-But there are four other things to clean up:
+#### Clean column structure
+
+:::::{.my-procedure}
+:::{.my-procedure-header}
+:::::: {#prp-011-clean-structure-2013-2022}
+: Clean column structure for the RWB datasets 2013-2022
+::::::
+:::
+::::{.my-procedure-container}
+
+To clean up the column structure of the datasets 2013-2022 there are three actions necessary:
 
 1. There are with `Score exactions`, `Score N with the exactions`, `Score N without the exactions` and `Score evolution` three columns that are not present in the first batch of datasets (2022-2025). There is also a column type mismatch of numeric versus logical in the three `exactions`  columns, because in the first years of the second batch `Score N with the exactions`, `Score N without the exactions` have no (`NA`) values. Anyway: I couldn't find an explanation what the `exaction` columns measure. So I will delete these columns.
 2. Instead of the two-letter language code for the country names columns at the end (`Country_EN`), in the second batch (2013-2021) these abbreviations appear at the start the column name (`EN_country`). This is only important for the English names as I will use only the English variant of the country names. Other issues (such as the score value inconsistency) are the same in both dataset batches.
 3. The columns names for the global score and rank are `Score N` and `Rank N` instead of just `Score`and `Rank` in the first batch of datasets. I have to rename them.
-4. Another issue is the missing of the `Score evolution` column. This column is important and easy to compute because `Score N` and `Score N-1` are present. But this change has to be done after cleaning the `Score N` and `Score N-1` values.
+
+Additionally there is another issue: The `Score evolution` column is missing. This column is important and easy to compute because `Score N` and `Score N-1` are present. But this change has to be done after cleaning the `Score N` and `Score N-1` values.
+
+::::
+:::::
+
+
+
 
 ::: {.callout-important #imp-011-column-sequencefor-row-binding}
-###### The column sequence for row binding is irrelevant. Importantis the match of column names. 
+###### The column sequence for row binding is irrelevant. Important is only the match of column names. 
 :::
 
 :::::{.my-r-code}
@@ -507,7 +543,7 @@ get_rsf_recoded2(2013:2021, load_path)
 ::::
 :::::
 
-
+#### Clean values
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
@@ -520,8 +556,8 @@ get_rsf_recoded2(2013:2021, load_path)
 
 ```{r}
 #| label: clean-values-2013-2021
-#| lst-label: lst-011-cleam-values-2013-2021
-#| lst-cap: "Follow the procedure of @prp-011-clean-values and clean values for the RWB datasets 2013-2021"
+#| lst-label: lst-011-clean-values-2013-2021
+#| lst-cap: "Follow the procedure of @prp-011-clean-structure-2013-2022 and clean values for the RWB datasets 2013-2021"
 #| eval: false
 
 
@@ -558,6 +594,8 @@ my_save_data_file("chap011/rwb", rwb2, "rwb2.rds")
 
 ### Batch 3: 2002-2011/2012
 
+#### Compare structure
+
 The third batch is the most easiest to clean up, because `Score N` and `Score N-1` values are not comparable with the files from the other datasets batches. The used scores for the years 2002-2012 (missing 2011) range from 0 respectively in 2011/2012 (-10) for the best to a maximum of 115.5 in 2009 for the worst situation. Therefore we also don't need the missing `Score evolution` to create and compute.
 
 
@@ -580,20 +618,52 @@ janitor::compare_df_cols(rsf2012, rsf2008, rsf2005, rsf2002)
 ::::
 :::::
 
+#### Clean column structure
+
 It turned out that the data frames from 2002-2012 have exactly the same structure as the datasets from 2013-2021. But there is one big difference: The values of the columns of `Score N` and `Score N-1` are not compatible with the rest of the data. So when I am going to bind the rows of the different years together, I have to delete these columns to prevent misunderstandings. For the years 2002-2012 only the rank data can be used. 
+
+
+:::::{.my-procedure}
+:::{.my-procedure-header}
+:::::: {#prp-011-clean-values-2002-2012}
+: Clean structure for the RWB dataset 2002-2012
+::::::
+:::
+::::{.my-procedure-container}
+
+The following steps are necessary to clean up the values (and structure) of the 2002-2012
+
+
+1. Delete all columns that contain `Score`. These are:
+  - `Score`
+  - `Score N-1`
+  - `Score N without the exactions`
+  - `Score with the exactions` and
+  - `Score exactions`
+2. Rename as in the second batch of dataset `EN_country` to `Country_EN`.
+3. Rename `Rank N` to `Rank`.
+4. Delete all languages for country names with the exception of the English names.
+5. Skip the missing year 2011
+  
+  
+  
+  
+::::
+:::::
+
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-011-clean-columns-2002-2013}
-: Clean column structure 2002-2013
+:::::: {#cnj-011-clean-columns-2002-2012}
+: Clean column structure 2002-2012
 ::::::
 :::
 ::::{.my-r-code-container}
 
 <center>**Run this code chunk manually if the recoded file(s) still needs to be created**</center>
 ```{r}
-#| label: clean-columns-2002-2013
-#| lst-label: lst-011-clean-columns-2002-2013
+#| label: clean-columns-2002-2012
+#| lst-label: lst-011-clean-columns-2002-2012
 #| lst-cap: "Clean / reorganize column structure for row binding"
 #| eval: false
 
@@ -614,13 +684,13 @@ rsf_batch3 <- function(df, year, path, ext) {
         ) |> 
         dplyr::relocate(Country_EN, .after = ISO) |> 
         janitor::clean_names() |>
-        dplyr::select(-c(fr_country:fa_country))        # (2)
+        dplyr::select(-c(fr_country:fa_country))        # (4)
     my_save_data_file(path, df, paste0("rsf", year, ext))
 }
 
-get_rsf_recoded2 <- function(years, path) {
+get_rsf_recoded3 <- function(years, path) {
   for (i in 1:length(years)) {
-    if (years[i] == 2011) {next}
+    if (years[i] == 2011) {next}                        # (5)
     my_name <- paste0(path, "rsf", years[i], ".rds")
     file_name <- basename(my_name)
     rsf_batch3(assign(
@@ -631,7 +701,7 @@ get_rsf_recoded2 <- function(years, path) {
   }
 }
 
-get_rsf_recoded2(2002:2013, load_path)
+get_rsf_recoded3(2002:2012, load_path)
  
 ```
 
@@ -641,6 +711,30 @@ get_rsf_recoded2(2002:2013, load_path)
 
 ::::
 :::::
+
+#### Clean values
+
+After I tried to clean up the values in @lst-011-clean-values-2002-2012 I noticed another structural problem: As data for the year 2011 are missing the dataset for 2012 have as `year` value the character string `2011-12` and is therefore not compatible with the other datasets. 
+
+
+:::::{.my-procedure}
+:::{.my-procedure-header}
+:::::: {#prp-011-clean-values-2002-2012}
+: Clean values for the RWB datasets 2002-2012
+::::::
+:::
+::::{.my-procedure-container}
+
+1. Change the `year_n` values of the dataset 2012 from the character string `2011-12` to the numeric value of `2012`
+2. Change all columns of type `character` to columns of type `factor.`
+3. Sort the data by year (`year_n`) and country name (`country_en`)
+
+I applied the last two changes also to the other batches of datasets (batch 1 and 2) but didn't mention it there in appropriate sections explicitly.
+::::
+:::::
+
+
+
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
@@ -652,22 +746,22 @@ get_rsf_recoded2(2002:2013, load_path)
 <center>**Run this code chunk manually if `rwb3` still needs to be created and saved**</center>
 
 ```{r}
-#| label: clean-values-2002-2013
-#| lst-label: lst-011-cleam-values-2002-2013
-#| lst-cap: "Follow the procedure of @prp-011-clean-values and clean values for the RWB datasets 2013-2021"
+#| label: clean-values-2002-2012
+#| lst-label: lst-011-clean-values-2002-2012
+#| lst-cap: "Follow the procedure of @prp-011-clean-values-2002-2012 and clean values for the RWB datasets 2002-2013"
 #| eval: false
 
 
 
 base::source(file = "R/helper.R")
 
-## load recoded recoded rsf dataset into memory
+## load recoded rsf dataset into memory
 my_get_dir_files("data/chap011/rsf_rec", "\\.rds$")
 
 rwb_rec3 <- function(df) {
     for (i in seq_along(df)) {
-        if (is.character(df$year_n)) {
-            df <- dplyr::mutate(df, year_n = as.numeric(2012))
+        if (is.character(df$year_n)) {                          # (1)
+            df <- dplyr::mutate(df, year_n = as.numeric(2012)). # (1)
         }
         file_name = paste0("rwb", df$year_n[1])
         assign(file_name, df, envir = globalenv())
@@ -676,16 +770,16 @@ rwb_rec3 <- function(df) {
 
 
 ########### clean data third batch
-df_list3 = list(rsf2013_rec3, rsf2012_rec3, rsf2010_rec3, rsf2009_rec3,
+df_list3 = list(rsf2012_rec3, rsf2010_rec3, rsf2009_rec3,
                 rsf2008_rec3, rsf2007_rec3, rsf2006_rec3, rsf2005_rec3,
                 rsf2004_rec3, rsf2003_rec3, rsf2002_rec3)
 lapply(df_list3, rwb_rec3)
 
 ########## bind rows
-rwb3 <- dplyr::bind_rows(rwb2013, `rwb2012`, rwb2010, rwb2009, rwb2008,
-                         rwb2007, rwb2006, rwb2005, rwb2004, rwb2003, rwb2002) |>
-    dplyr::mutate(dplyr::across(dplyr::where(is.character), as.factor)) |>
-    dplyr::arrange(desc(year_n), country_en)
+rwb3 <- dplyr::bind_rows(rwb2012, rwb2010, rwb2009, rwb2008, rwb2007, 
+                         rwb2006, rwb2005, rwb2004, rwb2003, rwb2002) |>
+    dplyr::mutate(dplyr::across(dplyr::where(is.character), as.factor)) |> # (2)
+    dplyr::arrange(desc(year_n), country_en)                               # (3)
 
 ########## save file
 my_save_data_file("chap011/rwb", rwb3, "rwb3.rds")
@@ -715,6 +809,7 @@ After I cleaned the three different dataset batches, it is now time to finish an
 #| label: all-batches-together
 #| lst-label: lst-011-all-batches-together
 #| lst-cap: "Bind the rows for the three cleaned batches of datasets `rwb1.rds`, `rwb2.rds` and `rwb3.rds` to the final `rwb.rds file."
+#| eval: false
 
 base::source(file = "R/helper.R")
 
