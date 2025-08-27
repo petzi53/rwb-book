@@ -17,6 +17,7 @@ book:
   chapters:
     - index.qmd
     - 011-get-rwb-data.qmd
+    - 041-map-2022-2025.qmd
     - 051-learn-leaflet-1.qmd
     - 052-learn-leaflet-2.qmd
     - 053-learn-leaflet-3.qmd

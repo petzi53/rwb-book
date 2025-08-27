@@ -28,7 +28,8 @@ example
 
 After following [Making maps with R](https://r.geocompx.org/adv-map)
 (chapter 9 of the online book [Geocomputation with
-R](https://r.geocompx.org/)) it turned out in my @sec-chap041 that
+R](https://r.geocompx.org/)) and making my own research 
+(see my notes in @sec-chap041) it turned out that
 [{**leaflet**}](https://rstudio.github.io/leaflet/index.html) /
 [leaflet.js](https://leafletjs.com/) is the most mature and widely used
 interactive mapping package in R interactive map drawing software.
