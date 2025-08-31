@@ -21,6 +21,8 @@ book:
     - 051-learn-leaflet-1.qmd
     - 052-learn-leaflet-2.qmd
     - 053-learn-leaflet-3.qmd
+    - 061-dashboard-1.qmd
+    # - 062-dashboard-2.qmd
 
 bibliography:
     - references.bib
@@ -130,8 +132,8 @@ language:
 #   crossref-int-title: "Interpretation"
 
 # https://github.com/quarto-dev/quarto-cli/blob/main/src/resources/language/_language.yml
-   callout-tip-title: "Report"           # green
+   callout-tip-title: "Hint"             # green
    callout-note-title: "Note"            # blue
    callout-warning-title: "Watch out!"   # orange
    callout-important-title: "Important"  # red
-   callout-caution-title: "Typo"         # yellow
+   callout-caution-title: "ToDo"         # yellow
