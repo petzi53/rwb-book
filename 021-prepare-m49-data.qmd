@@ -104,7 +104,7 @@ Session Info
 ```{r}
 #| label: session-info
 
-sessioninfo::session_info()
+xfun::session_info()
 ```
 :::
 :::

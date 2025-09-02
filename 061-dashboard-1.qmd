@@ -186,8 +186,8 @@ My aim is to go step by step from the simple to the more complex, e.g. to start 
 
 | Program | Helper | Shiny | Abbr. |
 |---------|--------|-------|-------|
-| ggplot2 | only   | ----- | GO-   |
-| plotly  | only   | ----- | PO-   |
+| ggplot2 | only   | ----- | GO0   |
+| plotly  | only   | ----- | PO0   |
 | ggplot2 | with   | Shiny | GWS   |
 | plotly  | with   | Shiny | PWS   |
 : Four modes with rising complexity {#tbl-modes} {.striped}
@@ -206,27 +206,28 @@ To facilitate learning I will apply in this book three conventions:
 2. To make it easier for references I will not use [Quarto tabsets](https://quarto.org/docs/output-formats/html-basics.html#tabsets), because only the content of the visible tab can be cross referenced.
 3. I will develop the `shinylive-r` code chunks in as separate Shiny app because then I have all available the debug tools. Then I will include the content of the finished app into the `shinylive-r` code chunk with
 
-`## file: app.R`       
+`## file: app.R`     
 `{{< include path-to/app.R >}}`
+
 
 :::
 
-### GO- line chart
+### GO0 line chart
 
 The easiest line chart is a graph showing the development of one variable over the years for one country. I will take the variable `score` for the global score showing the trend for my own country Austria (`country_en == "Austria`). 
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-061-go--line-chart}
-: `GO-` Using {ggplot2} (without Shiny) for a line chart
+:::::: {#cnj-061-go0-line-chart}
+: `GO0` Using {ggplot2} (without Shiny) for a line chart
 ::::::
 :::
 ::::{.my-r-code-container}
 ```{r}
-#| label: go--line-chart
-#| lst-label: lst-go--line-chart
-#| fig-cap: "Development of the global World Press Freedom Index (WPFI) of Austria with {ggplot2}: `GO-`"
-#| lst-cap: "One numeric variable (Score) with one factor variable (Country Name) using {ggplot2}: `GO-`"
+#| label: go0-line-chart
+#| lst-label: lst-go0-line-chart
+#| fig-cap: "Development of the global World Press Freedom Index (WPFI) of Austria with `ggplot()`: `GO0`"
+#| lst-cap: "One numeric variable (Score) with one factor variable (Country Name) using `ggplot()`: `GO0`"
 
 library(ggplot2)
 library(dplyr, warn.conflicts = FALSE)
@@ -239,28 +240,66 @@ p <- rwb |>
   na.omit() |>
   ggplot(aes(year_n, score)) +
     geom_line()
+
 p
 ```
 
 ::::
 :::::
 
-### PO- line chart
+### PO0 line chart
 
-The easiest line chart is a graph showing the development of one variable over the years for one country. I will take the variable `score` for the global score showing the trend for my own country Austria (`country_en == "Austria`). 
+The UI is identical with @cnj-061-line-chart-gws-1. There are two ways to create a {**plotly**} line chart:
 
+1. **Convert `ggplot()` to `plotly()`**. This requires only one changes: Encapsulate the `ggplot2::ggplot()` object with `plotly::ggplotly()`.
+2. **Build a `plot_ly()` graph from scratch**. For me this requires to learn another syntax because my experience with {**plotly**} is currently very limited. But using this direct approach has some advantages:
+  - **Performance**: This is the primary limitation of `ggplotly()` compared to the native `plot_ly()`. The difference is huge: Depending on the graph `ggplotly()` is [23-143 (!) times slower](https://www.jumpingrivers.com/blog/comparing-plotly-ggplotly-plot-generation-times/) than `plot_ly()`.
+  - **Customization**: The outcome of `ggplotly()`is not always predictable and there is less control about the final graph compared with the native `plot_ly()` function.
+  
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-061-po--line-chart}
-: `PO-` Using {plotly} (without Shiny) for a line chart
+:::::: {#cnj-061-ggplotly-line-chart}
+: Line chart with `ggplot()` and `ggplotly()`.
 ::::::
 :::
 ::::{.my-r-code-container}
 ```{r}
-#| label: po--line-chart
-#| lst-label: lst-po--line-chart
-#| fig-cap: "Development of the global World Press Freedom Index (WPFI) of Austria with {plotly}: `PO-`"
-#| lst-cap: "One numeric variable (Score) with one factor variable (Country Name) using {plotly}: `GO-`"
+#| label: ggplotly-line-chart
+#| lst-label: lst-061-ggplotly-line-chart
+#| lst-cap: "Line chart with `ggplot()` and `ggplotly()`"
+#| fig-cap: "Development of the global World Press Freedom Index (WPFI) of Austria with `ggplot()` and `ggplotly()`: `GO0`"
+
+library(plotly, warn.conflicts = FALSE)
+library(dplyr, warn.conflicts = FALSE)
+
+rwb <- readRDS(paste0(here::here(), "/data/chap011/rwb/rwb.rds"))
+
+p <- rwb |> 
+  select(year_n, country_en, score) |> 
+  filter(country_en == "Austria") |> 
+  na.omit() |>
+  ggplot(aes(year_n, score)) +
+    geom_line()
+
+ggplotly(p)
+```
+
+::::
+:::::
+  
+  
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-061-po0-line-chart}
+: `PO0` Using {plotly} (without Shiny) for a line chart
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: po0-line-chart
+#| lst-label: lst-po0-line-chart
+#| fig-cap: "Development of the global World Press Freedom Index (WPFI) of Austria with {plotly}: `PO0`"
+#| lst-cap: "One numeric variable (Score) with one factor variable (Country Name) using {plotly}: `GO0`"
 
 library(plotly, warn.conflicts = FALSE)
 library(dplyr, warn.conflicts = FALSE)
@@ -294,12 +333,9 @@ Now I have to think about the input control(s) for the user. In this first simpl
 
 
 ::: {.column-screen}
-
-
-
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-061-gws-line-chart-1}
+:::::: {#cnj-061-line-chart-gws-1}
 : Choose country to display WPFI for all available years
 ::::::
 :::
@@ -307,12 +343,12 @@ Now I have to think about the input control(s) for the user. In this first simpl
 
 ```{shinylive-r}
 #| standalone: true
-#| viewerHeight: 750
+#| viewerHeight: 800
 #| components: [editor, viewer]
 #| layout: vertical
 
 ## file: app.R
-{{< include app-061-gws-line-chart-1/app.R >}}
+{{< include app-061-line-chart-gws-1/app.R >}}
 
 ```
 
@@ -321,6 +357,148 @@ Now I have to think about the input control(s) for the user. In this first simpl
 
 :::
 
+::: {.callout-important #imp-061-load-dataset}
+##### Loading files in Shinylive apps in Quarto
+
+I had problems to work with my RWB dataset. For `shinylive-r` code chunks is a special procedure necessary to load external data files: There are three ways to include files:
+
+1. You can embed text files in the code blocks. Not appropriate for me because `rwb` is a binary file.
+2. You can also embed binary files with a different procedure in the code blocks. But this option didn't work for me.
+3. Load the file via a http request. This worked for me.
+
+See [Shinylive: Load file](https://github.com/quarto-ext/shinylive/blob/main/load_file.qmd)
+
+**How to include .rds file in shinylive** (from Brave KI)
+
+To include an `.rds` file in a Shiny app hosted on the internet, you can load it directly from a public URL using the `readRDS` function combined with `gzcon` and `url` to handle the remote data stream. This method allows you to access the file without needing to download it locally first.
+
+For example, if the `.rds` file is hosted on a public repository like GitHub, you can use the raw file URL:
+
+```r
+data <- readRDS(gzcon(url("https://raw.githubusercontent.com/username/repo/main/data/file.rds")))
+```
+
+This approach works because `url()` creates a connection to the remote file, `gzcon()` decompresses it if necessary, and `readRDS()` reads the R object from the connection  This method is particularly useful for deploying Shiny apps on platforms like shinyapps.io, where you can host the data file publicly and reference it directly in your app's server logic 
+
+Alternatively, you can create a helper function to manage the remote loading process, which saves the file to a temporary local location before reading it, ensuring compatibility and reliability:
+
+```r
+readRDS_remote <- function(file, quiet = TRUE) {
+  if (grepl("^http", file, ignore.case = TRUE)) {
+    file_local <- file.path(tempdir(), basename(file))
+    download.file(file, file_local, quiet = quiet, mode = "wb")
+    file <- file_local
+  }
+  readRDS(file)
+}
+```
+
+Then use it as:
+
+```r
+data <- readRDS_remote("https://example.com/data/file.rds")
+```
+
+This method is beneficial when dealing with large files or unreliable connections, as it ensures the file is fully downloaded before being read.
+
+:::
+
+
+In addition to the line chart I have added two customizations:
+
+1. I added ggplot2::geom_point() on top of ´ggplot2::geom_line. The result is a [connected scatterplot](https://r-graph-gallery.com/connected_scatterplot_ggplot2.html). The page on the [R Graph Gallayer](https://r-graph-gallery.com) show other adaption as well, like custom circles and lines with arguments like `shape`, `size`, `color` and more.
+2. I added a dynamic title for the card container. The somewhat tricky part of this change is that you have to use the `paste()` function to put the static and dynamic parts of text string together in a reactive function (and not in UI).
+
+### PWS Line Chart
+
+#### Using `ggploty()`
+
+Converting a `ggplot()` to `plotly()` in a Shiny app requires three changes: 
+
+- Encapsulate the `ggplot2::ggplot()` object with `plotly::ggplotly()`. This is the same change as in @lst-061-ggplotly-line-chart without Shiny. But there are other two additions necessary:
+(1) Change `plotOutput()` to `plotlyOutput()` and to
+(2) Change `renderPlot()` to `renderPlotly()`.
+
+
+::: {.column-screen}
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-061-line-chart-pws-1a}
+: Choose country to display WPFI for all available years with `ggplotly()`
+::::::
+:::
+::::{.my-r-code-container}
+
+```{shinylive-r}
+#| standalone: true
+#| viewerHeight: 800
+#| components: [editor, viewer]
+#| layout: vertical
+
+## file: app.R
+{{< include app-061-line-chart-pws-1a/app.R >}}
+
+```
+
+::::
+:::::
+:::
+
+#### Using `plot_ly()`
+
+The second possibility is to use the native mode to {**plotly**}: Instead of converting a {**ggplot2**} graph to {**plotly**} we generate the interactive graph with `plotly::plot_ly()`.
+
+As this is the more convenient approach to build interactive graphs for complex figures and dashboards computing several charts in parallel, from now on I will only display the native `plot_ly()` variant.
+
+::: {.column-screen}
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-061-line-chart-pws-1b}
+: Choose country to display WPFI for all available years with `ggplotly()`
+::::::
+:::
+::::{.my-r-code-container}
+
+```{shinylive-r}
+#| standalone: true
+#| viewerHeight: 800
+#| components: [editor, viewer]
+#| layout: vertical
+
+## file: app.R
+{{< include app-061-line-chart-pws-1b/app.R >}}
+
+```
+
+::::
+:::::
+
+:::
+
+::: {.callout-important #nte-061-scatter-syntax}
+###### Some comments on the `plot_ly()` syntax
+
+1. Note that the `x` and `y` variable need in front the `~` sign. These are the data visualized as scatter point or lines in the `x` and `y` variable. 
+2. Type `scatter` is a fundamental type for creating various visualizations such as scatter plots, line charts, but is also used for text and bubble charts. 
+3. The `mode` attribute determines how the data is displayed, such as with markers, lines, text, or a combination of these. For example, setting `mode = "line"` creates a standard line plot as in @lst-po0-line-chart, while `mode = "lines+markers"` adds both lines connecting the points and markers at each point as in @cnj-061-line-chart-pws-1b.
+
+
+:::
+
+:::::{.my-resource}
+:::{.my-resource-header}
+:::::: {#lem-061-scatter-syntax}
+: How to build line and scatter plots with {**plotly**}
+::::::
+:::
+::::{.my-resource-container}
+
+- [Examples for scatter and line plots](https://plotly.com/r/line-and-scatter/) can be found on the Plotly pages. 
+- The [reference page on scatter](https://plotly.com/r/reference/scatter/) shows that the `scatter`type has a rich set of customization options.
+- For a more comprehensive instruction how to use the {**plotly**} R package read the authoritative resource [Interactive web-based data visualization with R, plotly, and shiny](https://plotly-r.com/) by Carson Sievert [@sievert2019].
+
+::::
+:::::
 
 
 ## Glossary Entries {.unnumbered}
@@ -345,7 +523,7 @@ Session Info
 ```{r}
 #| label: session-info
 
-sessioninfo::session_info()
+xfun::session_info()
 ```
 :::
 :::

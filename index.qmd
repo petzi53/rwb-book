@@ -327,7 +327,10 @@ There is a little inconvenience with abrreviation that could also be part of ano
 ::::
 ::::::
 
+## Reproducibility
 
+I have used for this book the first time the {**renv**} package. For this reason I have changed my standard `sessioninfo::session_info()` to the more succinct version `xfun::session_info()`. This has also the advantage that the full path to my local files on my computer is not revealed anymore. 
+But actually I do not know, if I still would need session information, because {**renv**} provides all necessary information and handling to reproduce my project exactly.
 
 
 ## Resources
@@ -373,7 +376,7 @@ Session Info
 ```{r}
 #| label: session-info
 
-sessioninfo::session_info()
+xfun::session_info()
 ```
 :::
 :::
