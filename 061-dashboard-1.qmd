@@ -62,7 +62,7 @@ I am thinking on a dashboard with the following functionalities:
 
 I am condensing the most important section for my project of the {**bslib**} [Dashboard](https://rstudio.github.io/bslib/articles/dashboards/index.html) article.
 
-### Plainest design
+### Plainest Design
 
 There only three layout elements available in the standard layout: 
 
@@ -178,7 +178,7 @@ I have developed a template as an `r glossary("snippet", "RStudio snippet")` wit
 I will stop here with the minimum content example. It works as a template for new apps resp. `shinylive-r` code chunks. But there are still to cover many other {**bslib**} design features and functions. Whenever the need arises I will either come back here to this section or write my notes in the appropriate project section. 
 
 
-## RWB project
+## RWB Line Chart / One Country
 
 In the {**bslib**} documentation there is a basic example of a customizable histogram with numeric variables from the {**palmerpenguins**} dataset. I will use my own `rwb` dataset to display different line charts for global scores and rankings for selected countries or regions.
 
@@ -212,7 +212,7 @@ To facilitate learning I will apply in this book three conventions:
 
 :::
 
-### GO0 line chart
+### GO0 Line Chart
 
 The easiest line chart is a graph showing the development of one variable over the years for one country. I will take the variable `score` for the global score showing the trend for my own country Austria (`country_en == "Austria`). 
 
@@ -247,7 +247,7 @@ p
 ::::
 :::::
 
-### PO0 line chart
+### PO0 Line Chart
 
 The UI is identical with @cnj-061-line-chart-gws-1. There are two ways to create a {**plotly**} line chart:
 
@@ -259,7 +259,7 @@ The UI is identical with @cnj-061-line-chart-gws-1. There are two ways to create
 :::::{.my-r-code}
 :::{.my-r-code-header}
 :::::: {#cnj-061-ggplotly-line-chart}
-: Line chart with `ggplot()` and `ggplotly()`.
+: `PO0`: Line chart with `ggplot()` and `ggplotly()` (without Shiny).
 ::::::
 :::
 ::::{.my-r-code-container}
@@ -327,7 +327,7 @@ p
 During the process of loading and attaching the two packages ({**dplyr**} and {**plotly**}) I have used `warn.conflicts = FALSE` to suppress warnings. This is special for these two packages. A general command would have been `base::suppressWarnings()`.
 :::
 
-### GWS line chart
+### GWS Line Chart
 
 Now I have to think about the input control(s) for the user. In this first simple example I will only provide to choose one country, specifically only *one* country. The variable is with `score` still the same.
 
@@ -336,7 +336,7 @@ Now I have to think about the input control(s) for the user. In this first simpl
 :::::{.my-r-code}
 :::{.my-r-code-header}
 :::::: {#cnj-061-line-chart-gws-1}
-: Choose country to display WPFI for all available years
+: `GWS` Choose country to display WPFI for all available years
 ::::::
 :::
 ::::{.my-r-code-container}
@@ -424,7 +424,7 @@ Converting a `ggplot()` to `plotly()` in a Shiny app requires three changes:
 :::::{.my-r-code}
 :::{.my-r-code-header}
 :::::: {#cnj-061-line-chart-pws-1a}
-: Choose country to display WPFI for all available years with `ggplotly()`
+: `PWS` Choose country to display WPFI for all available years with `ggplotly()`
 ::::::
 :::
 ::::{.my-r-code-container}
@@ -454,7 +454,7 @@ As this is the more convenient approach to build interactive graphs for complex 
 :::::{.my-r-code}
 :::{.my-r-code-header}
 :::::: {#cnj-061-line-chart-pws-1b}
-: Choose country to display WPFI for all available years with `ggplotly()`
+: `PWS` Choose country to display WPFI for all available years with `plot_ly()`.
 ::::::
 :::
 ::::{.my-r-code-container}
@@ -499,6 +499,70 @@ As this is the more convenient approach to build interactive graphs for complex 
 
 ::::
 :::::
+
+## RWB Line Charts / Several Countries
+
+### One country after the other
+
+::: {.column-screen}
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-061-line-chart-pws-2}
+: Show development of WPFI for several countries at once
+::::::
+:::
+::::{.my-r-code-container}
+```{shinylive-r}
+#| standalone: true
+#| viewerHeight: 800
+#| components: [editor, viewer]
+#| layout: vertical
+
+## file: app.R
+{{< include app-061-line-chart-pws-2/app.R >}}
+
+```
+
+::::
+:::::
+::: 
+
+There are several important comments to make:
+
+1. At first I tried to disntinguish between the first trace (with `plot_ly()`) and all the other traces with `add_trace()`. But it turned out that I just need to set the argument `color` to the country vector.
+
+2. I had to adapt the card title so that it can display all names of the displayed countries.
+
+3. A big drawback is that the line color of the already chosen countries changes after another country is selected. So far I couldn't find a solution. After my question was [in StackOverflow not accepted](https://stackoverflow.com/questions/79757537/how-to-control-line-chart-colors-in-plotly-when-lines-are-added-via-shinyselec) (supposedly because it is a duplicate of another question), I posted in the [Posit Forum](https://forum.posit.co/t/how-to-control-line-chart-colors-in-plotly-when-lines-are-added-via-shiny-selectinput/206923) for help.
+
+### With `actionButton()`
+
+A different UI would be adding an action button to delay the reaction. In this case the complete chart with all the chosen countries is drawn. So there is no irritation.
+
+But in the next step when adding or removing the same problem recurs. Adding just one country results again in a distracting experience. It is a slighlty better whenever several countries are added, removed or changed.
+
+::: {.column-screen}
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-061-line-chart-pws-3}
+: Show development of WPFI with delayed reaction via action button
+::::::
+:::
+::::{.my-r-code-container}
+```{shinylive-r}
+#| standalone: true
+#| viewerHeight: 800
+#| components: [editor, viewer]
+#| layout: vertical
+
+## file: app.R
+{{< include app-061-line-chart-pws-3/app.R >}}
+
+```
+
+::::
+:::::
+::: 
 
 
 ## Glossary Entries {.unnumbered}

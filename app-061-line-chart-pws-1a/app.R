@@ -1,14 +1,15 @@
 ## app-061-line-chart-pws-1a
 ## Choose country to display WPFI for all available years
+## Using ggplotly()
 ## @cnj-061-ine-chart-pws-1a
 
-
-library(shiny)
-library(bslib)
-library(ggplot2)
-library(munsell)
-library(dplyr)
-library(plotly)
+suppressWarnings(suppressPackageStartupMessages({
+    library(shiny)
+    library(bslib)
+    library(ggplot2)
+    library(dplyr)
+    library(plotly)
+}))
 
 rwb <- readRDS(gzcon(url("https://raw.githubusercontent.com/petzi53/rwb-book/master/data/chap011/rwb/rwb.rds")))
 
