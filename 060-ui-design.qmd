@@ -1,0 +1,175 @@
+# Design {#sec-chap060}
+
+
+```{r}
+#| label: setup
+#| results: hold
+#| include: false
+
+base::source(file = "R/helper.R")
+ggplot2::theme_set(ggplot2::theme_bw())
+```
+
+
+::::: {#obj-chap060}
+:::: {.my-objectives}
+::: {.my-objectives-header}
+Objectives
+:::
+
+::: {.my-objectives-container}
+
+In this chapter I will design the user interface with {**bslib**}. I will provide data only if it necessary to show the functionality of the UI design. 
+
+:::
+::::
+:::::
+            
+
+I am condensing the most important section for my project of the {**bslib**} [Dashboard](https://rstudio.github.io/bslib/articles/dashboards/index.html) article.
+
+### Plainest Design
+
+There only three layout elements available in the standard layout: 
+
+- the *title*, 
+- the *sidebar* for the controls and 
+- the *main content* area.
+
+::: {.column-page}
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-060-dashboard-most-simple}
+: UI elements of the most simple dashboard
+::::::
+:::
+::::{.my-r-code-container}
+
+
+```{shinylive-r}
+#| standalone: true
+#| viewerHeight: 350
+#| components: [editor, viewer]
+
+library(shiny)
+library(bslib)
+
+ui <- page_sidebar(
+  title = "Title for the dashboard",
+  sidebar = "Sidebar for the contols (input)",
+  "Main content area"
+)
+
+shinyApp(ui, function(input, output) {})
+```
+
+
+::::
+:::::
+
+::: 
+
+::: {.callout-tip #tip-060-shinylieve-interaction}
+##### How to interact with the `shinylive-r` output?
+
+In the above first example there is only a minimal interaction possible. Clicking on the right top arrow in the sidebar (**<**) will close the sidebar and therefore enlarge the main content area. 
+But in this {**shinylive**} mode you can also change the code and rerun the program by clicking on the top right filled arrow (▶). Try it out to change one of the text strings.
+:::
+
+### Minimum content
+
+> Both the `sidebar` and main content areas can hold any arbitrary collection of UI elements, but it’s good practice to keep inputs in the `sidebar` and outputs in the main content area. Also, consider wrapping outputs in a `card()` and sidebar contents in a `sidebar()` object to add a `title` and/or customize styling, positioning, etc.
+
+::: {.column-page}
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-060-dashboard-most-simple}
+: UI elements of the most simple dashboard
+::::::
+:::
+::::{.my-r-code-container}
+
+
+```{shinylive-r}
+#| standalone: true
+#| viewerHeight: 500
+#| components: [editor, viewer]
+
+library(shiny)
+library(bslib)
+
+ui <- page_sidebar(
+  title = "Title for the whole dashboard",
+  sidebar = sidebar(
+    title = "Controls / Input"
+  ),
+  card(
+    card_header("Title for the current card"),
+    textOutput("txt")
+  )
+)
+
+server <-  function(input, output) {
+  output$txt <- renderText({
+    "This is the main area (of the card)"
+  })
+}
+
+shinyApp(ui, server)
+```
+
+
+::::
+:::::
+
+::: 
+
+Even with the minimum card content we needed about 15 code lines. This is just a simple template. All parts can be arbitrary complex 
+- `title()` could be for example a complex expression
+- `sidebar()` can hold many input controls and directives for the layout (e.g., several cards in a specific arrangement),
+- `card()` can hold complex results and 
+`server()` is the most tricky part, because it needs reactivity (`reactive()` functions) to work together with the input controls.
+
+
+
+::: {.callout-tip #tip-060-minimum-as-template}
+###### Minimum content as template
+
+I have developed a template as an `r glossary("snippet", "RStudio snippet")` with the minimum content example. I am using it to start new Shiny apps or a `shinylive-r` code chunks.
+:::
+
+
+I will stop here with the minimum content example. It works as a template for new apps resp. `shinylive-r` code chunks. But there are still to cover many other {**bslib**} design features and functions. Whenever the need arises I will either come back here to this section or write my notes in the appropriate project section. 
+
+
+
+
+## Glossary Entries {.unnumbered}
+
+```{r}
+#| label: glossary-table
+#| echo: false
+
+glossary_table()
+```
+
+------------------------------------------------------------------------
+
+## Session Info {.unnumbered}
+
+::: my-r-code
+::: my-r-code-header
+Session Info
+:::
+
+::: my-r-code-container
+```{r}
+#| label: session-info
+
+xfun::session_info()
+```
+:::
+:::
+

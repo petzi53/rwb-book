@@ -1,4 +1,4 @@
-# Dashboard (1) {#sec-chap061}
+# Line Chart: One variable {#sec-chap061}
 
 
 ```{r}
@@ -19,164 +19,31 @@ Objectives
 
 ::: {.my-objectives-container}
 
-In this chapter I will learn to use the {**bslib**} package to create a Shiny dashboard for my `r glossary("RWB")` project.
+For this chapter I have two objectives for my `r glossary("RWB")` project:
+
+I will experiment with the basics of building dynamic interactive line charts. This goal includes:
+
+  - **Line chart for one country**
+    - Without {**shiny**} 
+      - Start: Chart with {*ggplot2*} (see @sec-061-go0).
+      - Medium: Chart with {**plotly**} using `ggplotly()` (see @sec-061-po0).
+    - With {**shiny**}
+      - Start: Line chart with {*ggplot2*} using {**shiny**} (see @sec-061-gws).
+      - Medium: Line chart with {**plotly**} using `ggplotly()` in {**shiny**} (see @sec-061-pws-ggplotly).
+      - Final: Line chart with the `plot_ly()` function in {**shiny**} (see @sec-061-pws-plotly).
+  - **Line chart for several countries with {shiny}**
+    - Only using native {**plotly**} functions.
+      - Adding countries one by one (see @sec-061-one-after-the-other).
+      - Choosing all countries together and displaying it via `actionButton()` (see @sec-061-with-action-button).
+      
+The final figure with immediate drawing each selected countries includes some simplification and the solution to my colorscale problem (see @sec-061-solution-fixed-color).
 
 
 
 :::
 ::::
 :::::
-
-## Functionality
-
-I am thinking on a dashboard with the following functionalities:
-
-1. Central are three display modes:
-    - **Map**: Presenting maps, similar as on the [RSF Homepage](https://rsf.org/en/index).
-    - **Chart**: Presenting chars to show the development over the years. There is no equivalent at the RSF website. You can see an example at the `r glossary("WHR")` Dashboard under the [subsection "Charts"](https://data.worldhappiness.report/chart). 
-    - **Country** Presenting details about a specific country. Again the RSF website has no equivalence, but you got an idea after choosing a particular country under the subsection "Countries". See as an [example Austria](https://data.worldhappiness.report/country/AUT).
-2. These three modes are essentially different, because they need diverse additional information (parameters):
-    1. **Map Mode**:
-        - `Year`: Allow only one year for map.
-        - `Score`: One of the available scores:    
-            - The *global score* for the years 2013-2025.   
-            - The *components scores* for the years 2022-2025.   
-        - `Ranking`: Not allowed (or later perhaps a map of the ranking differences between two years?)
-        - `Region`: is allowed with map mode, but takes the chosen map and zooms into the selected region. Similar as in [WHR website](https://data.worldhappiness.report/map) by choosing "Map" and the select by "Filter by region".
-        - `Country`: Select one or more of the available countries (because filtered by region was choose, then only the countries of this region are eligible.
-    2. **Chart Mode**:
-        - `Year`: Default is all available years, but the user can alternatively (de)select years.
-        - `Score`: One of the available scores:    
-            - The *global score* for the years 2013-2025 (default), but (de)selecting years is possible.  
-            - The *components scores* for the years 2022-2025 (default), but (de)selecting years is possible.
-        - `Ranking`: Alternatively with `Score` All year is default, but (de)selecting years is possible. 
-        - `Region`: One region is eligible. Default is all countries.
-        - `Country`: One or more countries are eligible. If a region is filtered then one can add other countries or deselect some countries from the region.
-    3. **Country**: Overview about different parameters. Which parameters is still to decide. First approximation (see [example Austria](https://data.worldhappiness.report/country/AUT)):
-        - All three modes are not available!
-            - `Score chart`: Global and component scores over all available years
-            - `Ranking chart`: Global and component rankings over all available years
-            - `Value boxes`: Current, highest, lowest, average, medium, biggest climb, biggest fall (only rankings and global score)
             
-## Design
-
-I am condensing the most important section for my project of the {**bslib**} [Dashboard](https://rstudio.github.io/bslib/articles/dashboards/index.html) article.
-
-### Plainest Design
-
-There only three layout elements available in the standard layout: 
-
-- the *title*, 
-- the *sidebar* for the controls and 
-- the *main content* area.
-
-::: {.column-page}
-
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-061-dashboard-most-simple}
-: UI elements of the most simple dashboard
-::::::
-:::
-::::{.my-r-code-container}
-
-
-```{shinylive-r}
-#| standalone: true
-#| viewerHeight: 350
-#| components: [editor, viewer]
-
-library(shiny)
-library(bslib)
-
-ui <- page_sidebar(
-  title = "Title for the dashboard",
-  sidebar = "Sidebar for the contols (input)",
-  "Main content area"
-)
-
-shinyApp(ui, function(input, output) {})
-```
-
-
-::::
-:::::
-
-::: 
-
-::: {.callout-tip #tip-061-shinylieve-interaction}
-##### How to interact with the `shinylive-r` output?
-
-In the above first example there is only a minimal interaction possible. Clicking on the right top arrow in the sidebar (**<**) will close the sidebar and therefore enlarge the main content area. 
-But in this {**shinylive**} mode you can also change the code and rerun the program by clicking on the top right filled arrow (▶). Try it out to change one of the text strings.
-:::
-
-### Minimum content
-
-> Both the `sidebar` and main content areas can hold any arbitrary collection of UI elements, but it’s good practice to keep inputs in the `sidebar` and outputs in the main content area. Also, consider wrapping outputs in a `card()` and sidebar contents in a `sidebar()` object to add a `title` and/or customize styling, positioning, etc.
-
-::: {.column-page}
-
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-061-dashboard-most-simple}
-: UI elements of the most simple dashboard
-::::::
-:::
-::::{.my-r-code-container}
-
-
-```{shinylive-r}
-#| standalone: true
-#| viewerHeight: 500
-#| components: [editor, viewer]
-
-library(shiny)
-library(bslib)
-
-ui <- page_sidebar(
-  title = "Title for the whole dashboard",
-  sidebar = sidebar(
-    title = "Controls / Input"
-  ),
-  card(
-    card_header("Title for the current card"),
-    textOutput("txt")
-  )
-)
-
-server <-  function(input, output) {
-  output$txt <- renderText({
-    "This is the main area (of the card)"
-  })
-}
-
-shinyApp(ui, server)
-```
-
-
-::::
-:::::
-
-::: 
-
-Even with the minimum card content we needed about 15 code lines. This is just a simple template. All parts can be arbitrary complex 
-- `title()` could be for example a complex expression
-- `sidebar()` can hold many input controls and directives for the layout (e.g., several cards in a specific arrangement),
-- `card()` can hold complex results and 
-`server()` is the most tricky part, because it needs reactivity (`reactive()` functions) to work together with the input controls.
-
-
-
-::: {.callout-tip #tip-061-minimum-as-template}
-###### Minimum content as template
-
-I have developed a template as an `r glossary("snippet", "RStudio snippet")` with the minimum content example. I am using it to start new Shiny apps or a `shinylive-r` code chunks.
-:::
-
-
-I will stop here with the minimum content example. It works as a template for new apps resp. `shinylive-r` code chunks. But there are still to cover many other {**bslib**} design features and functions. Whenever the need arises I will either come back here to this section or write my notes in the appropriate project section. 
-
 
 ## RWB Line Chart / One Country
 
@@ -212,7 +79,7 @@ To facilitate learning I will apply in this book three conventions:
 
 :::
 
-### GO0 Line Chart
+### GO0 Line Chart {#sec-061-go0}
 
 The easiest line chart is a graph showing the development of one variable over the years for one country. I will take the variable `score` for the global score showing the trend for my own country Austria (`country_en == "Austria`). 
 
@@ -247,7 +114,7 @@ p
 ::::
 :::::
 
-### PO0 Line Chart
+### PO0 Line Chart {#sec-061-po0}
 
 The UI is identical with @cnj-061-line-chart-gws-1. There are two ways to create a {**plotly**} line chart:
 
@@ -327,7 +194,7 @@ p
 During the process of loading and attaching the two packages ({**dplyr**} and {**plotly**}) I have used `warn.conflicts = FALSE` to suppress warnings. This is special for these two packages. A general command would have been `base::suppressWarnings()`.
 :::
 
-### GWS Line Chart
+### GWS Line Chart {#sec-061-gws}
 
 Now I have to think about the input control(s) for the user. In this first simple example I will only provide to choose one country, specifically only *one* country. The variable is with `score` still the same.
 
@@ -409,9 +276,9 @@ In addition to the line chart I have added two customizations:
 1. I added ggplot2::geom_point() on top of ´ggplot2::geom_line. The result is a [connected scatterplot](https://r-graph-gallery.com/connected_scatterplot_ggplot2.html). The page on the [R Graph Gallayer](https://r-graph-gallery.com) show other adaption as well, like custom circles and lines with arguments like `shape`, `size`, `color` and more.
 2. I added a dynamic title for the card container. The somewhat tricky part of this change is that you have to use the `paste()` function to put the static and dynamic parts of text string together in a reactive function (and not in UI).
 
-### PWS Line Chart
+### PWS Line Chart {#sec-061-pws}
 
-#### Using `ggploty()`
+#### Using `ggploty()` {#sec-061-pws-ggplotly}
 
 Converting a `ggplot()` to `plotly()` in a Shiny app requires three changes: 
 
@@ -444,7 +311,7 @@ Converting a `ggplot()` to `plotly()` in a Shiny app requires three changes:
 :::::
 :::
 
-#### Using `plot_ly()`
+#### Using `plot_ly()` {#sec-061-pws-plotly}
 
 The second possibility is to use the native mode to {**plotly**}: Instead of converting a {**ggplot2**} graph to {**plotly**} we generate the interactive graph with `plotly::plot_ly()`.
 
@@ -500,9 +367,9 @@ As this is the more convenient approach to build interactive graphs for complex 
 ::::
 :::::
 
-## RWB Line Charts / Several Countries
+## RWB Line Charts / Several Countries {#sec-061-several-countries}
 
-### One country after the other
+### One country after the other {#sec-061-one-after-the-other}
 
 ::: {.column-screen}
 :::::{.my-r-code}
@@ -535,11 +402,11 @@ There are several important comments to make:
 
 3. A big drawback is that the line color of the already chosen countries changes after another country is selected. So far I couldn't find a solution. After my question was [in StackOverflow not accepted](https://stackoverflow.com/questions/79757537/how-to-control-line-chart-colors-in-plotly-when-lines-are-added-via-shinyselec) (supposedly because it is a duplicate of another question), I posted in the [Posit Forum](https://forum.posit.co/t/how-to-control-line-chart-colors-in-plotly-when-lines-are-added-via-shiny-selectinput/206923) for help.
 
-### With `actionButton()`
+### With `actionButton()` {#sec-061-with-action-button}
 
 A different UI would be adding an action button to delay the reaction. In this case the complete chart with all the chosen countries is drawn. So there is no irritation.
 
-But in the next step when adding or removing the same problem recurs. Adding just one country results again in a distracting experience. It is a slighlty better whenever several countries are added, removed or changed.
+But in the next step when adding or removing the same problem recurs. Adding just one country results again in a distracting experience. It is a slightly better whenever several countries are added, removed or changed.
 
 ::: {.column-screen}
 :::::{.my-r-code}
@@ -564,6 +431,40 @@ But in the next step when adding or removing the same problem recurs. Adding jus
 :::::
 ::: 
 
+### Solution fixed color {#sec-061-solution-fixed-color}
+
+I finally found the solution to my problem of changing the line color of the already chosen countries. The part I didn't understand was that I needed a **named** color vector as demonstrated in the [second example of Custom Color Scales](https://plotly.com/r/line-and-scatter/#custom-color-scales) of the Plotly website.
+
+```r
+pal <- c("red", "blue", "green")
+pal <- setNames(pal, c("virginica", "setosa", "versicolor"))
+```
+I didn't apply the second part with `setNames()` to the color palette `pal`. A loop ---  as I thought --- is not necessary.
+
+I have commented the three added lines and also the one changed line. Additionally I have simplified the `card_title()` rendering function and moved under the final `renderPlotly()` function.
+
+::: {.column-screen}
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-061-line-chart-pws-solution}
+: Show development of WPFI with consistent colored country lines
+::::::
+:::
+::::{.my-r-code-container}
+```{shinylive-r}
+#| standalone: true
+#| viewerHeight: 800
+#| components: [editor, viewer]
+#| layout: vertical
+
+## file: app.R
+{{< include app-061-line-chart-pws-solution/app.R >}}
+
+```
+
+::::
+:::::
+::: 
 
 ## Glossary Entries {.unnumbered}
 

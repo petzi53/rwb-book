@@ -31,17 +31,16 @@ ui <- page_sidebar(
 
 server <- function(input, output, session) {
 
-    output$card_title <-  renderText({
-        my_countries <- filter(countries(), country_en %in% input$country)
-        txt <- unique(my_countries$country_en)
-        s = paste("World Press Freedom Index for", txt[1])
-        for (i in 2:length(txt)) {
-            s <- paste(s, txt[i], sep = ", ")
-        }
-        s
-    })
-
     countries <- eventReactive(input$go, {
+        output$card_title <-  renderText({
+            s = paste("World Press Freedom Index for", input$country[1])
+            if (length(input$country)  > 1) {
+                for (i in 2:length(input$country)) {
+                    s <- paste(s, input$country[i], sep = ", ")
+                }
+            }
+            s
+        })
         rwb |>
             select(year_n, score, country_en) |>
             filter(country_en %in% input$country) |>

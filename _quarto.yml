@@ -16,13 +16,21 @@ book:
 
   chapters:
     - index.qmd
-    - 011-get-rwb-data.qmd
-    - 041-map-2022-2025.qmd
-    - 051-learn-leaflet-1.qmd
-    - 052-learn-leaflet-2.qmd
-    - 053-learn-leaflet-3.qmd
-    - 061-dashboard-1.qmd
-    # - 062-dashboard-2.qmd
+    - part: "Preliminaries"
+      chapters:
+        - 011-get-rwb-data.qmd
+        - 041-map-with-tmap.qmd
+    - part: "Explore Leaflet"
+      chapters:
+        - 051-learn-leaflet-1.qmd
+        - 052-learn-leaflet-2.qmd
+        - 053-learn-leaflet-3.qmd
+    - part: "RWB Dashboard"
+      chapters:
+        - 059-functionality.qmd
+        - 060-ui-design.qmd
+        - 061-line-chart-one-variable.qmd
+        - 062-line-chart-more-variables.qmd
 
 bibliography:
     - references.bib

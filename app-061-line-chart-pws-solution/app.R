@@ -1,6 +1,6 @@
-## app-061-line-chart-pws-2
+## app-061-line-chart-pws-solution
 ## Choose several countries to display WPFI for all available years
-## @cnj-061-ine-chart-pws-2
+## @cnj-061-ine-chart-pws-solution
 
 suppressWarnings(suppressPackageStartupMessages({
     library(shiny)
@@ -30,20 +30,26 @@ ui <- page_sidebar(
 
 server <- function(input, output, session) {
 
-    output$card_title <-  renderText({
-        my_countries <- filter(countries(), country_en %in% input$country)
-        txt <- unique(my_countries$country_en)
-        s = paste("World Press Freedom Index:", txt[1])
-        if (length(txt) > 1) {
-            for (i in 2:length(txt)) {
-                s <- paste(s, txt[i], sep = ", ")
-            }
-        }
-        s
-    })
+    pal = RColorBrewer::brewer.pal(12, "Paired")                # added
 
     countries <- reactive({
         req(input$country)
+
+        # transferred and simplified #######################
+        output$card_title <-  renderText({
+            s = paste(
+                "World Press Freedom Index for",
+                input$country[1]
+                )
+            if (length(input$country)  > 1) {
+                for (i in 2:length(input$country)) {
+                    s <- paste(s, input$country[i], sep = ", ")
+                }
+            }
+            s
+        })
+        #####################################################
+
         rwb |>
             select(year_n, score, country_en) |>
             filter(country_en %in% input$country) |>
@@ -54,12 +60,14 @@ server <- function(input, output, session) {
 
     output$p <- renderPlotly({
         req(countries())
+        length(pal) <- length(input$country)                    # added
+        pal <- setNames(pal, input$country)                     # added
         plotly::plot_ly(
             data = countries(),
             x = ~year_n,
             y = ~score,
             color = ~country_en,
-            colors = RColorBrewer::brewer.pal(12, "Paired"),
+            colors = pal,                                       # changed
             type = 'scatter',
             mode = 'lines+markers',
             marker = list(size = 10)
@@ -68,3 +76,5 @@ server <- function(input, output, session) {
 }
 
 shinyApp(ui, server)
+
+

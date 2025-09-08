@@ -1,4 +1,4 @@
-# Plot map 2022-2025 {#sec-chap041}
+# Plot map with {tmap} {#sec-chap041}
 
 ::::: {#obj-chap041}
 :::: {.my-objectives}
