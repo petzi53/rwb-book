@@ -33,7 +33,7 @@ This chapter will be updated whenever I add some functionality to my RWB dashboa
 
 ## Functionalities {#sec-059-functionalities}
 
-I am thinking on a dashboard with the following functionalities:
+I am thinking on a dashboard with the following functionalities (see also the preliminiary project plan in the preface @sec-project-plan):
 
 ### Three display modes
 

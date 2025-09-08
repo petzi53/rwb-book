@@ -22,9 +22,9 @@ book:
         - 041-map-with-tmap.qmd
     - part: "Explore Leaflet"
       chapters:
-        - 051-learn-leaflet-1.qmd
-        - 052-learn-leaflet-2.qmd
-        - 053-learn-leaflet-3.qmd
+        - 051-leaflet-basics.qmd
+        - 052-leaflet-choropleth.qmd
+        - 053-leaflet-advanced.qmd
     - part: "RWB Dashboard"
       chapters:
         - 059-functionality.qmd

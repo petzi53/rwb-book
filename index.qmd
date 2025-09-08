@@ -3,7 +3,7 @@
 ::: {.callout-note style="color: blue;"}
 #### This is work in progress
 
-I have finished approximately 5%. This is just a rough guess, derived from my @sec-project-plan.
+I have finished approximately 10%. This is just a rough guess, derived from my @sec-project-plan.
 
 Currently I am working on plotting the map for the RWB datasets 2022-2025.
 
@@ -95,7 +95,7 @@ Although the index construction from 2013 to today has changed in 2022 we can co
 
 ## Project plan {#sec-project-plan}
 
-I take as a model for my practical project the [Word Happiness Report](https://data.worldhappiness.report/map) (`r glossary("WHR")`) dashboard. I cannot plan the details but my dashboar should contain the following main visualizations:
+I take as a model for my practical project the [Word Happiness Report](https://data.worldhappiness.report/map) (`r glossary("WHR")`) dashboard. I cannot plan the details here but my dashboard (see for the current state of the project plan chapter @sec-chap059) should contain the following main visualizations:
 
 ### Maps
 
@@ -158,7 +158,7 @@ Choosing one country or regions displays a summary of all available data for thi
 
 ### Realization
 
-I will apply the intermediate results of my code development parallel the [Shiny package RSF](https://github.com/petzi53/rsf) (Reporters sans frontières). After some research I learned that the {**bslib**} package is the most modern package fpr dashboard development. I looked into
+I will apply the intermediate results of my code development parallel the [Shiny package RSF](https://github.com/petzi53/rsf) (Reporters sans frontières). After some research I learned that the {**bslib**} package is the most modern package for dashboard development. I looked into
 
 - [{**shinydashboard**}](https://rstudio.github.io/shinydashboard/): 
     - Approx. 1.500 downloads per day 
