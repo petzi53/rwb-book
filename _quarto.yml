@@ -30,6 +30,9 @@ book:
         - 061-functionality.qmd
         - 071-ui-design.qmd
         - 081-line-chart.qmd
+        - 091-bump-chart-1.qmd
+        - 092-bump-chart-2.qmd
+        - 093-bump-chart-3.qmd
 
 bibliography:
     - references.bib
