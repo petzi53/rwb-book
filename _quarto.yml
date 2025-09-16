@@ -27,10 +27,9 @@ book:
         - 053-leaflet-advanced.qmd
     - part: "RWB Dashboard"
       chapters:
-        - 059-functionality.qmd
-        - 060-ui-design.qmd
-        - 061-line-chart-one-variable.qmd
-        - 062-line-chart-more-variables.qmd
+        - 061-functionality.qmd
+        - 071-ui-design.qmd
+        - 081-line-chart.qmd
 
 bibliography:
     - references.bib

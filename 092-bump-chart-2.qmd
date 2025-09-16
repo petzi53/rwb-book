@@ -1,0 +1,157 @@
+# Bump Chart 2 {#sec-chap063}
+
+
+```{r}
+#| label: setup
+#| results: hold
+#| include: false
+
+base::source(file = "R/helper.R")
+
+library(dplyr, warn.conflicts = FALSE)
+library(ggplot2)
+library(ggbump)
+library(plotly, warn.conflicts = FALSE)
+```
+
+
+::::: {#obj-chap063}
+:::: {.my-objectives}
+::: {.my-objectives-header}
+Chapter section list
+:::
+
+::: {.my-objectives-container}
+
+
+:::
+::::
+:::::
+
+## Introduction
+
+
+### Line Widths and Point Sizes
+
+The next bump chart has realized two adaptions:
+
+1. Set `linewith = 1.5`.
+2. Added points with defined size: `geom_point(size = 4)`.
+
+::: {.column-screen}
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-063-bump-chart-line-point-sizes}
+: Evolution of the rankings of the top ten countries in 2025
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-063-bump-chart-line-point-sizes
+#| fig-cap: "Evolution of the rankings of the top ten countries in 2025"
+#| fig.height: 9
+
+
+# select top ten countries of 2025
+
+rwb <- readRDS(paste0(here::here(), "/data/chap011/rwb/rwb.rds"))
+vec_top_ten_2025 <- readRDS(paste0(here::here(), "/data/chap062/vec_top_ten_2025.rds"))
+
+rwb_top_ten <- rwb |> 
+  dplyr::filter(country_en %in% vec_top_ten_2025)
+
+
+p <- ggplot(rwb_top_ten, 
+       aes(x = year_n, 
+           y = rank, 
+           color = country_en)) +
+    geom_bump(linewidth = 1.5) +
+    geom_point(size = 4)
+
+plotly::ggplotly(p)
+
+```
+
+::::
+:::::
+::: 
+
+::: {.callout-important #imp-ID}
+###### Correct years only when hovering about points
+
+Hovering over the lines returns always the last year (in our case 2025). To get the correct year one has to hover with mouse over the points.
+:::
+
+
+
+
+
+### Scale Reverse & Color Palette
+
+In the next step I am going to change the scales:
+
+I want to display the best values at the top of the graphic, because this is visual custom. This change requires to reverse the scale, so that the lowest values are on top.
+
+The standard (**ggplot2**) color scale has some disadvantages: It is not colorblind save and its color are in some color shades difficult to distinct. I am going to use qualitative palette from the {**RColorBrewer**} package, which is imported into {**ggplot2**}.
+
+A third change is to get rid of the distracting gray background by choosing a simple black/white theme.
+
+::: {.column-screen}
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-063-bump-chart-scale-reverse-color-palette}
+: Evolution of the rankings of the top ten countries in 2025
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-063-bump-chart-scale-reverse-color-palette
+#| fig-cap: "Evolution of the rankings of the top ten countries in 2025"
+#| fig.height: 9
+
+p <- p +
+  scale_color_brewer(palette = "Paired") +
+  scale_y_reverse() +
+  theme_bw()
+  
+
+plotly::ggplotly(p)
+
+```
+
+::::
+:::::
+::: 
+
+
+
+
+
+
+
+## Glossary Entries {#unnumbered}
+
+```{r}
+#| label: glossary-table
+#| echo: false
+
+glossary_table()
+```
+
+------------------------------------------------------------------------
+
+## Session Info {.unnumbered}
+
+::: my-r-code
+::: my-r-code-header
+Session Info
+:::
+
+::: my-r-code-container
+```{r}
+#| label: session-info
+
+sessioninfo::session_info()
+```
+:::
+:::

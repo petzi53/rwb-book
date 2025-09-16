@@ -1,0 +1,333 @@
+# Bump Chart 3 {#sec-chap064}
+
+
+```{r}
+#| label: setup
+#| results: hold
+#| include: false
+
+base::source(file = "R/helper.R")
+
+library(dplyr, warn.conflicts = FALSE)
+library(ggplot2)
+library(ggbump)
+library(plotly, warn.conflicts = FALSE)
+```
+
+
+::::: {#obj-chap064}
+:::: {.my-objectives}
+::: {.my-objectives-header}
+Chapter section list
+:::
+
+::: {.my-objectives-container}
+
+
+:::
+::::
+:::::
+
+## Introduction
+
+### Text labels
+
+The most important change, which is also the most difficult customization, is to add texts on the vertical sides of the plot to display the change in the rankings.
+
+There are two elements for the new code snippets:
+
+1. The first one is to find the minimum / maximum value of the year to get the rough x-position (= Year) of the annotation.
+2. The second one is an extra treatment of the position to get the final position and plotting the label text (= Country name)
+
+As the labels are now situated at the side of starting and end points an extra legend is not necessary any more.
+
+::: {.column-screen}
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-064-bump-chart-text-labels}
+: Evolution of the rankings of the top ten countries in 2025
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-064-bump-chart-text-labels
+#| fig-cap: "Evolution of the rankings of the top ten countries in 2025"
+#| fig.height: 9
+
+rwb <- readRDS(paste0(here::here(), "/data/chap011/rwb/rwb.rds"))
+vec_top_ten_2025 <- readRDS(paste0(here::here(), "/data/chap062/vec_top_ten_2025.rds"))
+
+rwb_top_ten <- rwb |> 
+  dplyr::filter(country_en %in% vec_top_ten_2025)
+
+
+p <- ggplot(rwb_top_ten, 
+       aes(x = year_n, 
+           y = rank, 
+           color = country_en)) +
+    geom_bump(linewidth = 1.5) +
+    geom_point(size = 4) +
+
+  geom_text(data = rwb_top_ten |>  filter(year_n == min(year_n)),
+            aes(x = year_n - 1, label = iso),
+            size = 5, hjust = 1) +
+  geom_text(data = rwb_top_ten  |>  filter(year_n == max(year_n)),
+            aes(x = year_n + 1, label = iso),
+            size = 5, hjust = 0) +
+  theme(legend.position = "none")
+  
+
+plotly::ggplotly(p)
+
+```
+
+::::
+:::::
+::: 
+
+
+## Data interpretation
+
+The chart above shows the advantage of bump charts in contrast to a list of rankings per year. We see that Portugal and Netherlands are countries with extraordinary development. The result of the bump charts indicates that there was something interesting going on in these countries. We should therefore look into the details to find out the causes for their irregular development.
+
+1. **Netherlands** has generally very good ranks with the exception of 2022. If we look into the details of the [RWB report](https://rsf.org/en/country/netherlands) we will find the reason for this outlier: 
+
+> The assassination in July 2021 of crime reporter Peter R. de Vries, who also worked as a legal adviser for victims of crime, shocked not only a society that values press freedom, but also the authorities who have developed a sophisticated system to protect journalists.
+
+2. **Portugal** has experienced an extremely up and down of its ranking position with the worst rank in 2010. In contrast to the onetime outlier of Netherlands I couldn't find any details in the general summary of the RWB report for Portugal. But my internet research on "press freedom in portugal in 2009" found some possible explanations:
+
+> … the country faced challenges related to press freedom, notably the passage of the "Journalist Statute" in 2007, which had a significant negative impact on media freedom and was linked to Portugal's decline in the World Press Freedom Index from rank 8 in 2007 to 30 in 2009.
+ This law allowed courts to compel journalists to reveal confidential sources in cases involving state security or organized crime and permitted employers to use or alter journalistic material without additional compensation for 30 days after publication. (via Brave KI)
+ 
+### Data concentration and second X-axis
+
+To get a better picture of those countries that didn't undergo big changes in their ranking I excluded Netherlands and Portugal from the bump chart of the top Press Freedom countries in the next gaphic.
+
+At the same time I added on top a second X-axis. It turned out that this was tricky because the simple {**ggplot2**} approach with `scale_x_continuous(name = "Year", sec.axis = dup_axis())` did not work together with `plotly::ggplotly()`.
+
+I found [a workaround](https://stackoverflow.com/a/52834636/7322615) by manually adding the second x-axis by defining its properties in the layout function after converting the plot with `plotly::ggplotly()`. For this hack I had to use `colors = NULL` to prevent a second display of lines.
+
+Additionally I changed the country labels to black labels as I think the colored label result in noisy appearance.
+
+:::::{.my-resource}
+:::{.my-resource-header}
+:::::: {#lem-064-second-axis-with-plotly}
+: How to provide a second axis with `plotly::ggplotly()`?
+::::::
+:::
+::::{.my-resource-container}
+
+See also other similar StackOverflow posts:
+
+- [Adding second Y axis on ggplotly](https://stackoverflow.com/questions/52833214/adding-second-y-axis-on-ggplotly/52834636#52834636): The workaround I have adapted for my use case.
+- [Secondary axis in plotly does not work for different scales](https://stackoverflow.com/questions/62477985/secondary-axis-in-plotly-does-not-work-for-different-scales)
+- [Second x axis in ggplotly with invisible second trace](https://stackoverflow.com/questions/65498319/second-x-axis-in-ggplotly-with-invisible-second-trace)
+- [ggplot with 2 y axes on each side and different scales](https://stackoverflow.com/questions/3099219/ggplot-with-2-y-axes-on-each-side-and-different-scales): This old post shows [a manual solution](https://stackoverflow.com/a/53703152/7322615) in {**ggplot2**} ---  which maybe could work with {**plotly**} --- but has also a last answer the relatively [new secondary axis ggplot command](https://stackoverflow.com/a/39805869/7322615).
+::::
+:::::
+
+
+
+::: {.column-screen}
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-064-bump-chart-second-axis}
+: Evolution of the rankings of top eight countries
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-064-bump-chart-second-axis
+#| fig-cap: "Evolution of the rankings of top eight countries"
+#| fig.height: 9
+
+library(dplyr, warn.conflicts = FALSE)
+library(ggplot2)
+library(ggbump)
+library(plotly, warn.conflicts = FALSE)
+
+rwb <- readRDS(paste0(here::here(), "/data/chap011/rwb/rwb.rds"))
+vec_top_ten_2025 <- readRDS(paste0(here::here(), "/data/chap062/vec_top_ten_2025.rds"))
+
+vec_top_eight <- vec_top_ten_2025[c(1:2,4:7,9:10)]
+
+rwb_top_eight <- rwb |> 
+  dplyr::filter(country_en %in% vec_top_eight)
+
+p <- ggplot(rwb_top_eight, 
+       aes(x = year_n, 
+           y = rank, 
+           color = country_en)) +
+  geom_bump(linewidth = 1.5) +
+  geom_point(size = 4) +
+  geom_text(data = rwb_top_eight |>  filter(year_n == min(year_n)),
+            aes(x = year_n - 1, label = iso),
+            color = "black", size = 5, hjust = 1) +
+  geom_text(data = rwb_top_eight  |>  filter( year_n == max(year_n)),
+            aes(x = year_n + 1, label = iso),
+            color = "black", size = 5, hjust = 0) +
+  ### the following code line does not work with ggplotly()
+  # scale_x_continuous(name = "Year", sec.axis = dup_axis()) +
+  scale_color_brewer(palette = "Paired") +
+  scale_y_reverse(name = "Rank") +
+  theme_bw() +
+  theme(legend.position = "none")
+
+ax <- list(
+  overlaying = "x",
+  nticks = 5,
+  side = "top",
+  title = "Year"
+)
+
+ggplotly(p) |> 
+  add_lines(
+    data = rwb_top_eight,
+    x =  ~ year_n,
+    y =  ~ rank,
+    colors = NULL,
+    xaxis = "x2",
+    showlegend = FALSE,
+    inherit = FALSE
+  ) |>
+  layout(xaxis2 = ax)
+```
+
+::::
+:::::
+::: 
+
+## Adding Flags
+
+Another step would be to add country flags as labels on both sides of the graph. There are two special R packages {**ggflags**}  and {**ggimage**} to add flags with their `geom_flag()` function into {**ggplot2**} graphics.  
+
+But unfortunately both packages do not work together with `plotly::ggplotly()`. I tried to find a native {**plotly**} solution and read about [Embedding Logos in Plotly Graphs in R](https://plotly.com/r/logos/), [Embedding Images](https://plotly-r.com/embedding-images.html) and particularly [Working with symbols and glyphs](https://plotly-r.com/working-with-symbols) where the last example shows how to plot flags. But until now I could not succeed.
+
+The following example therefore only shows how to add flags for {**ggplot2**} plots.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-064-adding-flags}
+: Adding Flags with {**ggplot2**}
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: tbl-064-adding-flags
+#| tbl-cap: "Adding flags"
+
+library(dplyr, warn.conflicts = FALSE)
+library(ISOcodes)
+library(ggflags)
+
+rwb <- readRDS(paste0(here::here(), "/data/chap011/rwb/rwb.rds"))
+
+iso2 <- ISO_3166_1 |> 
+  dplyr::select(1:2) |> 
+  dplyr::rename (
+    iso2 = Alpha_2, 
+    iso = Alpha_3
+  ) |> 
+  dplyr::mutate(iso2 = tolower(iso2))
+  
+rwb2 <- dplyr::left_join(
+  rwb,
+  iso2,
+  by = dplyr::join_by(iso == iso)
+)
+
+```
+
+::::
+:::::
+
+::: {.column-screen}
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-064-bump-chart-show-flags}
+: Evolution of the rankings of top eight countries
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-064-bump-chart-show-flags
+#| fig-cap: "Evolution of the rankings of top eight countries"
+#| fig.height: 9
+#| eval: false
+
+library(dplyr, warn.conflicts = FALSE)
+library(ggplot2)
+library(ggbump)
+library(plotly, warn.conflicts = FALSE)
+library(ggflags)
+# library(ggimage)
+
+p + ggflags::geom_flag(data = rwb_top_eight |>  filter(year_n == min(year_n)),
+                       aes(x = year_n - .8, country = iso2)) +
+    ggflags::geom_flag(data = rwb_top_eight |>  filter(year_n == max(year_n)),
+                       aes(x = year_n + .8, country = iso2))
+p
+```
+
+::::
+:::::
+::: 
+
+## Shiny realization
+
+The next code chunks display my Shiny solution where the user can choose between the global score or the global rank. This graphic has several features:
+
+1. The global scores shows a legend, whereas the global rank figure puts the label on the left resp. right side of the country bump chart. (There is still a glitch with countries not starting with 2002: These countries do not have a label on the left side.)
+2. The card title is adapting and shows what kind of graphic is selected and which countries are displayed.
+3. It is possible after the user has choose some countries to change from sore to rank or vice versa immediately.
+
+::: {.column-screen}
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-064-bump-chart-shiny}
+: Show development of country ranking
+::::::
+:::
+::::{.my-r-code-container}
+```{shinylive-r}
+#| standalone: true
+#| viewerHeight: 800
+#| components: [editor, viewer]
+#| layout: vertical
+
+## file: app.R
+{{< include app-064-bump-chart/app.R >}}
+
+```
+
+::::
+:::::
+:::
+
+
+## Glossary Entries {#unnumbered}
+
+```{r}
+#| label: glossary-table
+#| echo: false
+
+glossary_table()
+```
+
+------------------------------------------------------------------------
+
+## Session Info {.unnumbered}
+
+::: my-r-code
+::: my-r-code-header
+Session Info
+:::
+
+::: my-r-code-container
+```{r}
+#| label: session-info
+
+sessioninfo::session_info()
+```
+:::
+:::

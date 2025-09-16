@@ -1,0 +1,142 @@
+# Functionality  {#sec-chap061}
+
+
+```{r}
+#| label: setup
+#| results: hold
+#| include: false
+
+base::source(file = "R/helper.R")
+```
+
+::::: {#obj-chap061}
+:::: {.my-objectives}
+::: {.my-objectives-header}
+Objectives
+:::
+
+::: {.my-objectives-container}
+
+1. **Functionalities** (@sec-061-functionalities): I am presenting in this section the concept and status of realization for my dashboard on Reporters Without Borders (`r glossary("RWB")`).
+2. **Realizations** (@sec-061-realizations): In this section I am
+describing my plans for the concrete implementation of the different functionalities. When it is finished I will discuss the chosen realization with its advantages and problems (still to solve).
+
+
+::: {.callout-important #imp-061-work-in-progress}
+##### Work in progress (WIP)
+
+This chapter will be updated whenever I add some functionality to my RWB dashboard. It isn't completed until I have finished by dashboard.
+:::
+:::
+::::
+:::::
+
+## Functionalities {#sec-061-functionalities}
+
+I am thinking on a dashboard with the following functionalities (see also the preliminiary project plan in the preface @sec-project-plan):
+
+### Three display modes
+
+Central for the user interface are three display modes:
+
+1. **Map**: Presenting maps, similar as on the [RSF Homepage](https://rsf.org/en/index).
+2. **Chart**: Presenting chars to show the development over the years. There is no equivalent at the RSF website. You can see an example at the `r glossary("WHR")` Dashboard under the [subsection "Charts"](https://data.worldhappiness.report/chart). 
+3. **Country** Presenting details about a specific country. Again the RSF website has no equivalence, but you got an idea after choosing a particular country under the subsection "Countries". See as an [example Austria](https://data.worldhappiness.report/country/AUT).
+
+### Parameters
+
+These three modes are essentially different, because they need diverse additional information (parameters):
+
+#### Map Mode
+
+- `Year`: Allow only one year for map.
+- `Score`: One of the available scores:    
+    - The *global score* for the years 2013-2025.   
+    - The *components scores* for the years 2022-2025.   
+- `Ranking`: Not allowed (or later perhaps a map of the ranking differences between two years?)
+- `Region`: is allowed with map mode, but takes the chosen map and zooms into the selected region. Similar as in [WHR website](https://data.worldhappiness.report/map) by choosing "Map" and the select by "Filter by region".
+- `Country`: Select one or more of the available countries (because filtered by region was choose, then only the countries of this region are eligible.
+
+#### Chart Mode
+
+- `Year`: Default is all available years, but the user can alternatively (de)select years.
+- `Score`: One of the available scores:    
+    - The *global score* for the years 2013-2025 (default), but (de)selecting years is possible.  
+    - The *components scores* for the years 2022-2025 (default), but (de)selecting years is possible.
+- `Ranking`: Alternatively with `Score` All year is default, but (de)selecting years is possible. 
+- `Region`: One region is eligible. Default is all countries.
+- `Country`: One or more countries are eligible. If a region is filtered then one can add other countries or deselect some countries from the region.
+
+#### Country Mode
+
+Overview about different parameters. Which parameters is still to decide. First approximation (see [example Austria](https://data.worldhappiness.report/country/AUT)):
+
+All three modes are not always available!
+
+- `Score chart`: Global and component scores over all available years
+- `Ranking chart`: Global and component rankings over all available years
+- `Value boxes`: Current, highest, lowest, average, medium, biggest climb, biggest fall (only rankings and global score)
+
+## Realizations {#sec-061-realizations}
+
+### Gloabl Score Line Charts
+
+In @sec-chap061 I have started with with experiments for the chart mode. At the end of the chapter I was able to display global score line charts for several countries.
+
+::: {.callout-caution #cau-061-colorizing-factors}
+###### Selecting different numbers of countries results in different line colors for each countries
+
+There is still a problem to overcome: Adding another countries changes the line color of all countries already displayed. This is annoying and distracting.
+
+A work around with `actionButton()` delays the visualization after all countries are selected. But adding or removinmg a country from the selection results in the same inconsisten behaviour.
+
+I have posted my problem on [StackOverflow](https://stackoverflow.com/questions/79757537/how-to-control-line-chart-colors-in-plotly-when-lines-are-added-via-shinyselec) and in the [Posit Forum](https://forum.posit.co/t/how-to-control-line-chart-colors-in-plotly-when-lines-are-added-via-shiny-selectinput/206923) but had not received any help so far (2025-09-07).
+
+Another issue with the `actionButton()`: It generates an error when it is clicked and no country is selected.
+
+:::
+
+::: {.callout-important #imp-061-color-vector-solution}
+###### A named color vector is the solution for @cau-061-colorizing-factors
+
+I finally found the solution to my problem of changing the line color of the already chosen countries. The part I didn't understand was that I needed a **named** color vector as demonstrated in the [second example of Custom Color Scales](https://plotly.com/r/line-and-scatter/#custom-color-scales) of the Plotly website.
+
+The problem with the `actionButton()` still exists, but as I prefer the immediate display of the country developments, I do not need the delayed reaction.
+:::
+
+### General Line Charts
+
+My next step (starting 2025-09-08) is to provide more options for line charts:
+
+- Choosing between global score and ranking.
+
+
+
+
+## Glossary Entries {#unnumbered}
+
+```{r}
+#| label: glossary-table
+#| echo: false
+
+glossary_table()
+```
+
+------------------------------------------------------------------------
+
+## Session Info {.unnumbered}
+
+::: my-r-code
+::: my-r-code-header
+Session Info
+:::
+
+::: my-r-code-container
+```{r}
+#| label: session-info
+
+sessioninfo::session_info()
+```
+:::
+:::
+

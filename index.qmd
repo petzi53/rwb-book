@@ -95,7 +95,7 @@ Although the index construction from 2013 to today has changed in 2022 we can co
 
 ## Project plan {#sec-project-plan}
 
-I take as a model for my practical project the [Word Happiness Report](https://data.worldhappiness.report/map) (`r glossary("WHR")`) dashboard. I cannot plan the details here but my dashboard (see for the current state of the project plan chapter @sec-chap059) should contain the following main visualizations:
+I take as a model for my practical project the [Word Happiness Report](https://data.worldhappiness.report/map) (`r glossary("WHR")`) dashboard. I cannot plan the details here but my dashboard (see for the current state of the project plan chapter @sec-chap061) should contain the following main visualizations:
 
 ### Maps
 

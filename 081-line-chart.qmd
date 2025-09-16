@@ -1,0 +1,495 @@
+# Line Chart {#sec-chap081}
+
+
+```{r}
+#| label: setup
+#| results: hold
+#| include: false
+
+base::source(file = "R/helper.R")
+ggplot2::theme_set(ggplot2::theme_bw())
+```
+
+
+::::: {#obj-chap081}
+:::: {.my-objectives}
+::: {.my-objectives-header}
+Objectives
+:::
+
+::: {.my-objectives-container}
+
+For this chapter I have two objectives for my `r glossary("RWB")` project:
+
+I will experiment with the basics of building dynamic interactive line charts. This goal includes:
+
+  - **Line chart for one country**
+    - Without {**shiny**} 
+      - Start: Chart with {*ggplot2*} (see @sec-081-go0).
+      - Medium: Chart with {**plotly**} using `ggplotly()` (see @sec-081-po0).
+    - With {**shiny**}
+      - Start: Line chart with {*ggplot2*} using {**shiny**} (see @sec-081-gws).
+      - Medium: Line chart with {**plotly**} using `ggplotly()` in {**shiny**} (see @sec-081-pws-ggplotly).
+      - Final: Line chart with the `plot_ly()` function in {**shiny**} (see @sec-081-pws-plotly).
+  - **Line chart for several countries with {shiny}**
+    - Only using native {**plotly**} functions.
+      - Adding countries one by one (see @sec-081-one-after-the-other).
+      - Choosing all countries together and displaying it via `actionButton()` (see @sec-081-with-action-button).
+      
+The final figure with immediate drawing each selected countries includes some simplification and the solution to my colorscale problem (see @sec-081-solution-fixed-color).
+
+
+
+:::
+::::
+:::::
+            
+
+## RWB Line Chart / One Country
+
+In the {**bslib**} documentation there is a basic example of a customizable histogram with numeric variables from the {**palmerpenguins**} dataset. I will use my own `rwb` dataset to display different line charts for global scores and rankings for selected countries or regions.
+
+My aim is to go step by step from the simple to the more complex, e.g. to start with a line chart for one country and one variable, followed for several variables and finally with several countries. For my own learning purpose I will also use four different modes:
+
+| Program | Helper | Shiny | Abbr. |
+|---------|--------|-------|-------|
+| ggplot2 | only   | ----- | GO0   |
+| plotly  | only   | ----- | PO0   |
+| ggplot2 | with   | Shiny | GWS   |
+| plotly  | with   | Shiny | PWS   |
+: Four modes with rising complexity {#tbl-modes} {.striped}
+
+
+The final product should always be an interactive graph using {**plotly**} in an web application environment controlled by {**shiny**} PWS.
+
+In the first try I will not give attention to legend and theme but one: `theme_set(theme_bw())` 
+
+::: {.callout-important #imp-081-rw-project-rules}
+###### Conventions
+
+To facilitate learning I will apply in this book three conventions:
+
+1. To get a better overview of all necessary code lines, I will load the necessary data, functions and packages in every code chunk.
+2. To make it easier for references I will not use [Quarto tabsets](https://quarto.org/docs/output-formats/html-basics.html#tabsets), because only the content of the visible tab can be cross referenced.
+3. I will develop the `shinylive-r` code chunks in as separate Shiny app because then I have all available the debug tools. Then I will include the content of the finished app into the `shinylive-r` code chunk with
+
+`## file: app.R`     
+`{{< include path-to/app.R >}}`
+
+
+:::
+
+### GO0 Line Chart {#sec-081-go0}
+
+The easiest line chart is a graph showing the development of one variable over the years for one country. I will take the variable `score` for the global score showing the trend for my own country Austria (`country_en == "Austria`). 
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-081-go0-line-chart}
+: `GO0` Using {ggplot2} (without Shiny) for a line chart
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-go0-line-chart
+#| lst-label: lst-go0-line-chart
+#| fig-cap: "Development of the global World Press Freedom Index (WPFI) of Austria with `ggplot()`: `GO0`"
+#| lst-cap: "One numeric variable (Score) with one factor variable (Country Name) using `ggplot()`: `GO0`"
+
+library(ggplot2)
+library(dplyr, warn.conflicts = FALSE)
+
+rwb <- readRDS(paste0(here::here(), "/data/chap011/rwb/rwb.rds"))
+
+p <- rwb |> 
+  select(year_n, country_en, score) |> 
+  filter(country_en == "Austria") |> 
+  na.omit() |>
+  ggplot(aes(year_n, score)) +
+    geom_line()
+
+p
+```
+
+::::
+:::::
+
+### PO0 Line Chart {#sec-081-po0}
+
+The UI is identical with @cnj-081-line-chart-gws-1. There are two ways to create a {**plotly**} line chart:
+
+1. **Convert `ggplot()` to `plotly()`**. This requires only one changes: Encapsulate the `ggplot2::ggplot()` object with `plotly::ggplotly()`.
+2. **Build a `plot_ly()` graph from scratch**. For me this requires to learn another syntax because my experience with {**plotly**} is currently very limited. But using this direct approach has some advantages:
+  - **Performance**: This is the primary limitation of `ggplotly()` compared to the native `plot_ly()`. The difference is huge: Depending on the graph `ggplotly()` is [23-143 (!) times slower](https://www.jumpingrivers.com/blog/comparing-plotly-ggplotly-plot-generation-times/) than `plot_ly()`.
+  - **Customization**: The outcome of `ggplotly()`is not always predictable and there is less control about the final graph compared with the native `plot_ly()` function.
+  
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-081-ggplotly-line-chart}
+: `PO0`: Line chart with `ggplot()` and `ggplotly()` (without Shiny).
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-ggplotly-line-chart
+#| lst-label: lst-081-ggplotly-line-chart
+#| lst-cap: "Line chart with `ggplot()` and `ggplotly()`"
+#| fig-cap: "Development of the global World Press Freedom Index (WPFI) of Austria with `ggplot()` and `ggplotly()`: `GO0`"
+
+library(plotly, warn.conflicts = FALSE)
+library(dplyr, warn.conflicts = FALSE)
+
+rwb <- readRDS(paste0(here::here(), "/data/chap011/rwb/rwb.rds"))
+
+p <- rwb |> 
+  select(year_n, country_en, score) |> 
+  filter(country_en == "Austria") |> 
+  na.omit() |>
+  ggplot(aes(year_n, score)) +
+    geom_line()
+
+ggplotly(p)
+```
+
+::::
+:::::
+  
+  
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-081-po0-line-chart}
+: `PO0` Using {plotly} (without Shiny) for a line chart
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-po0-line-chart
+#| lst-label: lst-po0-line-chart
+#| fig-cap: "Development of the global World Press Freedom Index (WPFI) of Austria with {plotly}: `PO0`"
+#| lst-cap: "One numeric variable (Score) with one factor variable (Country Name) using {plotly}: `GO0`"
+
+library(plotly, warn.conflicts = FALSE)
+library(dplyr, warn.conflicts = FALSE)
+
+rwb <- readRDS(paste0(here::here(), "/data/chap011/rwb/rwb.rds"))
+
+p <- rwb |> 
+  select(year_n, country_en, score) |> 
+  filter(country_en == "Austria") |> 
+  na.omit() |>
+  plot_ly(
+    x = ~year_n, 
+    y = ~score, 
+    type = 'scatter', 
+    mode = 'lines')
+p
+```
+
+::::
+:::::
+
+::: {.callout-note #nte-081-suppress-warnings}
+###### How to suppress warnings?
+
+During the process of loading and attaching the two packages ({**dplyr**} and {**plotly**}) I have used `warn.conflicts = FALSE` to suppress warnings. This is special for these two packages. A general command would have been `base::suppressWarnings()`.
+:::
+
+### GWS Line Chart {#sec-081-gws}
+
+Now I have to think about the input control(s) for the user. In this first simple example I will only provide to choose one country, specifically only *one* country. The variable is with `score` still the same.
+
+
+::: {.column-screen}
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-081-line-chart-gws-1}
+: `GWS` Choose country to display WPFI for all available years
+::::::
+:::
+::::{.my-r-code-container}
+
+```{shinylive-r}
+#| standalone: true
+#| viewerHeight: 800
+#| components: [editor, viewer]
+#| layout: vertical
+
+## file: app.R
+{{< include app-081-line-chart-gws-1/app.R >}}
+
+```
+
+::::
+:::::
+
+:::
+
+::: {.callout-important #imp-081-load-dataset}
+##### Loading files in Shinylive apps in Quarto
+
+I had problems to work with my RWB dataset. For `shinylive-r` code chunks is a special procedure necessary to load external data files: There are three ways to include files:
+
+1. You can embed text files in the code blocks. Not appropriate for me because `rwb` is a binary file.
+2. You can also embed binary files with a different procedure in the code blocks. But this option didn't work for me.
+3. Load the file via a http request. This worked for me.
+
+See [Shinylive: Load file](https://github.com/quarto-ext/shinylive/blob/main/load_file.qmd)
+
+**How to include .rds file in shinylive** (from Brave KI)
+
+To include an `.rds` file in a Shiny app hosted on the internet, you can load it directly from a public URL using the `readRDS` function combined with `gzcon` and `url` to handle the remote data stream. This method allows you to access the file without needing to download it locally first.
+
+For example, if the `.rds` file is hosted on a public repository like GitHub, you can use the raw file URL:
+
+```r
+data <- readRDS(gzcon(url("https://raw.githubusercontent.com/username/repo/main/data/file.rds")))
+```
+
+This approach works because `url()` creates a connection to the remote file, `gzcon()` decompresses it if necessary, and `readRDS()` reads the R object from the connection  This method is particularly useful for deploying Shiny apps on platforms like shinyapps.io, where you can host the data file publicly and reference it directly in your app's server logic 
+
+Alternatively, you can create a helper function to manage the remote loading process, which saves the file to a temporary local location before reading it, ensuring compatibility and reliability:
+
+```r
+readRDS_remote <- function(file, quiet = TRUE) {
+  if (grepl("^http", file, ignore.case = TRUE)) {
+    file_local <- file.path(tempdir(), basename(file))
+    download.file(file, file_local, quiet = quiet, mode = "wb")
+    file <- file_local
+  }
+  readRDS(file)
+}
+```
+
+Then use it as:
+
+```r
+data <- readRDS_remote("https://example.com/data/file.rds")
+```
+
+This method is beneficial when dealing with large files or unreliable connections, as it ensures the file is fully downloaded before being read.
+
+:::
+
+
+In addition to the line chart I have added two customizations:
+
+1. I added ggplot2::geom_point() on top of ´ggplot2::geom_line. The result is a [connected scatterplot](https://r-graph-gallery.com/connected_scatterplot_ggplot2.html). The page on the [R Graph Gallayer](https://r-graph-gallery.com) show other adaption as well, like custom circles and lines with arguments like `shape`, `size`, `color` and more.
+2. I added a dynamic title for the card container. The somewhat tricky part of this change is that you have to use the `paste()` function to put the static and dynamic parts of text string together in a reactive function (and not in UI).
+
+### PWS Line Chart {#sec-081-pws}
+
+#### Using `ggploty()` {#sec-081-pws-ggplotly}
+
+Converting a `ggplot()` to `plotly()` in a Shiny app requires three changes: 
+
+- Encapsulate the `ggplot2::ggplot()` object with `plotly::ggplotly()`. This is the same change as in @lst-081-ggplotly-line-chart without Shiny. But there are other two additions necessary:
+(1) Change `plotOutput()` to `plotlyOutput()` and to
+(2) Change `renderPlot()` to `renderPlotly()`.
+
+
+::: {.column-screen}
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-081-line-chart-pws-1a}
+: `PWS` Choose country to display WPFI for all available years with `ggplotly()`
+::::::
+:::
+::::{.my-r-code-container}
+
+```{shinylive-r}
+#| standalone: true
+#| viewerHeight: 800
+#| components: [editor, viewer]
+#| layout: vertical
+
+## file: app.R
+{{< include app-081-line-chart-pws-1a/app.R >}}
+
+```
+
+::::
+:::::
+:::
+
+#### Using `plot_ly()` {#sec-081-pws-plotly}
+
+The second possibility is to use the native mode to {**plotly**}: Instead of converting a {**ggplot2**} graph to {**plotly**} we generate the interactive graph with `plotly::plot_ly()`.
+
+As this is the more convenient approach to build interactive graphs for complex figures and dashboards computing several charts in parallel, from now on I will only display the native `plot_ly()` variant.
+
+::: {.column-screen}
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-081-line-chart-pws-1b}
+: `PWS` Choose country to display WPFI for all available years with `plot_ly()`.
+::::::
+:::
+::::{.my-r-code-container}
+
+```{shinylive-r}
+#| standalone: true
+#| viewerHeight: 800
+#| components: [editor, viewer]
+#| layout: vertical
+
+## file: app.R
+{{< include app-081-line-chart-pws-1b/app.R >}}
+
+```
+
+::::
+:::::
+
+:::
+
+::: {.callout-important #nte-081-scatter-syntax}
+###### Some comments on the `plot_ly()` syntax
+
+1. Note that the `x` and `y` variable need in front the `~` sign. These are the data visualized as scatter point or lines in the `x` and `y` variable. 
+2. Type `scatter` is a fundamental type for creating various visualizations such as scatter plots, line charts, but is also used for text and bubble charts. 
+3. The `mode` attribute determines how the data is displayed, such as with markers, lines, text, or a combination of these. For example, setting `mode = "line"` creates a standard line plot as in @lst-po0-line-chart, while `mode = "lines+markers"` adds both lines connecting the points and markers at each point as in @cnj-081-line-chart-pws-1b.
+
+
+:::
+
+:::::{.my-resource}
+:::{.my-resource-header}
+:::::: {#lem-081-scatter-syntax}
+: How to build line and scatter plots with {**plotly**}
+::::::
+:::
+::::{.my-resource-container}
+
+- [Examples for scatter and line plots](https://plotly.com/r/line-and-scatter/) can be found on the Plotly pages. 
+- The [reference page on scatter](https://plotly.com/r/reference/scatter/) shows that the `scatter`type has a rich set of customization options.
+- For a more comprehensive instruction how to use the {**plotly**} R package read the authoritative resource [Interactive web-based data visualization with R, plotly, and shiny](https://plotly-r.com/) by Carson Sievert [@sievert2019].
+
+::::
+:::::
+
+## RWB Line Charts / Several Countries {#sec-081-several-countries}
+
+### One country after the other {#sec-081-one-after-the-other}
+
+::: {.column-screen}
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-081-line-chart-pws-2}
+: Show development of WPFI for several countries at once
+::::::
+:::
+::::{.my-r-code-container}
+```{shinylive-r}
+#| standalone: true
+#| viewerHeight: 800
+#| components: [editor, viewer]
+#| layout: vertical
+
+## file: app.R
+{{< include app-081-line-chart-pws-2/app.R >}}
+
+```
+
+::::
+:::::
+::: 
+
+There are several important comments to make:
+
+1. At first I tried to disntinguish between the first trace (with `plot_ly()`) and all the other traces with `add_trace()`. But it turned out that I just need to set the argument `color` to the country vector.
+
+2. I had to adapt the card title so that it can display all names of the displayed countries.
+
+3. A big drawback is that the line color of the already chosen countries changes after another country is selected. So far I couldn't find a solution. After my question was [in StackOverflow not accepted](https://stackoverflow.com/questions/79757537/how-to-control-line-chart-colors-in-plotly-when-lines-are-added-via-shinyselec) (supposedly because it is a duplicate of another question), I posted in the [Posit Forum](https://forum.posit.co/t/how-to-control-line-chart-colors-in-plotly-when-lines-are-added-via-shiny-selectinput/206923) for help.
+
+### With `actionButton()` {#sec-081-with-action-button}
+
+A different UI would be adding an action button to delay the reaction. In this case the complete chart with all the chosen countries is drawn. So there is no irritation.
+
+But in the next step when adding or removing the same problem recurs. Adding just one country results again in a distracting experience. It is a slightly better whenever several countries are added, removed or changed.
+
+::: {.column-screen}
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-081-line-chart-pws-3}
+: Show development of WPFI with delayed reaction via action button
+::::::
+:::
+::::{.my-r-code-container}
+```{shinylive-r}
+#| standalone: true
+#| viewerHeight: 800
+#| components: [editor, viewer]
+#| layout: vertical
+
+## file: app.R
+{{< include app-081-line-chart-pws-3/app.R >}}
+
+```
+
+::::
+:::::
+::: 
+
+### Solution fixed color {#sec-081-solution-fixed-color}
+
+I finally found the solution to my problem of changing the line color of the already chosen countries. The part I didn't understand was that I needed a **named** color vector as demonstrated in the [second example of Custom Color Scales](https://plotly.com/r/line-and-scatter/#custom-color-scales) of the Plotly website.
+
+```r
+pal <- c("red", "blue", "green")
+pal <- setNames(pal, c("virginica", "setosa", "versicolor"))
+```
+I didn't apply the second part with `setNames()` to the color palette `pal`. A loop ---  as I thought --- is not necessary.
+
+I have commented the three added lines and also the one changed line. Additionally I have simplified the `card_title()` rendering function and moved under the final `renderPlotly()` function.
+
+::: {.column-screen}
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-081-line-chart-pws-solution}
+: Show development of WPFI with consistent colored country lines
+::::::
+:::
+::::{.my-r-code-container}
+```{shinylive-r}
+#| standalone: true
+#| viewerHeight: 800
+#| components: [editor, viewer]
+#| layout: vertical
+
+## file: app.R
+{{< include app-081-line-chart-pws-solution/app.R >}}
+
+```
+
+::::
+:::::
+::: 
+
+## Glossary Entries {.unnumbered}
+
+```{r}
+#| label: glossary-table
+#| echo: false
+
+glossary_table()
+```
+
+------------------------------------------------------------------------
+
+## Session Info {.unnumbered}
+
+::: my-r-code
+::: my-r-code-header
+Session Info
+:::
+
+::: my-r-code-container
+```{r}
+#| label: session-info
+
+xfun::session_info()
+```
+:::
+:::
+

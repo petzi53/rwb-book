@@ -1,0 +1,224 @@
+# Bump Chart 1 {#sec-chap062}
+
+
+```{r}
+#| label: setup
+#| results: hold
+#| include: false
+
+base::source(file = "R/helper.R")
+
+library(dplyr, warn.conflicts = FALSE)
+library(ggplot2)
+library(ggbump)
+library(plotly, warn.conflicts = FALSE)
+```
+
+
+::::: {#obj-chap062}
+:::: {.my-objectives}
+::: {.my-objectives-header}
+Chapter section list
+:::
+
+::: {.my-objectives-container}
+
+
+:::
+::::
+:::::
+
+## Introduction
+
+Besides absolute score values the RWB dataset has also included information about the ranks of the different countries. This wouldn't be necessary as one could compute from the score values the relative country position. But traditionally the ranks are the most important parameter to compare the different countries. The rank is the only value that is available for all years, starting with the first year 2002 of the World Press Freedom Index (WPFI). 
+
+Measured parameters and methodology has changed during 2002 several times, so that there is no comparison possible of the calculated abolute values for all years. The only parameter that was constant over all the years is the rank of the countries, their relative position in a field of currently 180 evaluated countries. The index started 2002 with 139 countries, reached 180 in 2014 and remained constant until today (2025).
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-062-number-of-countries-per-year}
+: Number of countries evaluated per year for the World Press Freedom Index (WPFI)
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: tbl-062-number-of-countries-per-year
+#| tbl-cap: "Number of countries evaluated per year for the World Press Freedom Index (WPFI)"
+
+rwb <- readRDS(paste0(here::here(), "/data/chap011/rwb/rwb.rds"))
+
+rwb |> dplyr::count(year_n) |> 
+  print(n = Inf)
+```
+
+::::
+:::::
+
+## Structure of Bump Charts
+
+It is possible to use the normal line chart to display the ranking developments of several countries as I have done as an experiment for the World Happiness Report (`r glossary("WHR")`) in [Rank changes for Countries in Western Europe 2011-2024](https://bookdown.org/pbaumgartner/world-happiness-report/04-country-charts.html#rankings). The only adaption of the line chart was to reserve the scale so that the lowest figures (= the best rankings) are at the top of the graphic.
+
+But it turned out, that with {**ggbump**} there is a special R packages for ranking charts. It creates a `ggplot()` that makes a smooth rank over time. Bump charts are not only good to use to plot ranking over time, but can also be used when the path between two nodes have no statistical significance.
+
+It is typical of bump charts that 
+
+- they have points over the lines,
+- no legends but
+- texts on the vertical sides of the plot to display the change in the rankings.
+
+
+**Two contrasts:**
+
+- In contrast to [line charts](https://r-charts.com/evolution/line-graph-ggplot2/), or [connected scatterplots](https://r-graph-gallery.com/connected-scatterplot.html) which show the evolution of the absolute values over time, bump charts indicate the changes in the relative position of the evaluated categories.
+- In contrast to a sorted [lollipop chart](https://r-charts.com/ranking/lollipop-chart-ggplot2/) which also contains a numerical variable and a categorical variable and shows the ranking situation through a comoarison of their length representing the absolute value in a given moment (year), bump charts show the changes in the relative position of the categories over time. 
+
+::: {.callout-important #imp-062-bump-charts-and-plotly}
+###### Bump charts only available in {ggplot2}
+
+As the drawing of bump charts needs {**ggbump**}, a program of the {ggplot2} universe, I can't use the native `plotly::plot_ly()` approach but have to use `plotly::ggplotly()`.
+:::
+
+:::::{.my-resource}
+:::{.my-resource-header}
+:::::: {#lem-062-bumpchart}
+: Bump Chart
+::::::
+:::
+::::{.my-resource-container}
+After a short internet research I found the following resources on bump charts. I have ordered it from the easiest illustration with imaginary data to the more complex examples with real data: 
+
+- [Bump chart in {ggplot2} with {ggbump}](https://r-charts.com/ranking/ggbump/): This is very nice step-by-step tutorial with imaginary data. It starts by 
+    - the most basic bump chart, then
+    - it is adding points and
+    - colors and finally
+    - it is adding the texts on the vertical sides of the plot to display the change in the rankings.
+-[ Bump chart with {**ggplot2**}](https://www.statology.org/bump-chart-in-r-using-ggplot2/): This page with imaginary does not mention the {**ggbump**} package but it explains some basci techniques for bump charts as `ggplot2::scale_y_reverse()` and adding chart labels.
+- [R-Graph Gallery](https://r-graph-gallery.com/) has four articles with increasing complexity on bump charts:
+    - [Basic bump plot](https://r-graph-gallery.com/408-basic-bump-plot.html) explains how to build a basic bump plot with R. It uses the {**ggbump**} package, provides reproducible code and explains how input data must be formatted.
+    - [Create bumbplot with ggbump](https://r-graph-gallery.com/package/ggbump.html) is another basic introduction with has collected at the end some links of bump chart examples. 
+    - [Customized bump plot](https://r-graph-gallery.com/409-customize-bump-plot.html) explains how to change colors, and adding labels and title.
+    - [Bump plot with highlights](https://r-graph-gallery.com/web-bump-plot-with-highlights.html) is the most complex article. It shows 
+        - how to change the order and adding individual points
+        - how to change the theme and adding annotations
+- [Bump it Up: Creating a Bump Chart in R](https://tanyaviz.com/blog/bump-chart/): Provides a nice but complex example with 
+    - data exploration, 
+    - data pre-processing, 
+    - adding image data (logoi of the soccer clubs, but could be in my use case country flags) 
+    - basic plot
+    - scales & labels
+    - finishing touches
+- [Bump Chart: Track performance over time](https://dominikkoch.github.io/Bump-Chart/): A complex article that demonstrates the power of bump charts with data from the 2018 Olympic Winter Games in PyeongChang.
+- [ggbump repo](https://github.com/davidsjoberg/ggbump): It is the GitHub repository for the {**ggbump**} package. The README has some examples but --- with the exception of the first illustration --- they are all very complex and not suitable for step-by-step introduction or tutorial. The code for the first example is partly taken from the package online help but has additonal features not documented with code.
+
+[Step-by-Step Guide for Building Bump Charts in Plotly](https://towardsdatascience.com/step-by-step-guide-for-building-bump-charts-in-plotly-ef7c84ad3a0b/): This article is written for Python and is therefore not direct applicable for my R coding. But it shows some interesting new ideas that are not contained in the above R code examples:
+
+- Comparing the rankings for only two years with straight lines. It has the effect that it is much easier to follow the lines and detect the differences. The graphics needs therefore only labels of the right side of the figure. Besides this kind of bump chart would not need the {**ggbump**} package.
+- Adjusting the marker size in relation to the absolute value of the measure taken for the ranking. This is an interesting feature that shows not only the change in the ranks but also in the values.
+- Adding the rank number inside the markers. This saves space and would not need a Y axis any more.
+
+::::
+:::::
+
+
+## Bump Chart Step-by-Step
+
+For a demonstration of bump charts I will take as data the top ten `r glossary("RWB")` countries form 2025.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-062-rwb-top-ten}
+: Data frame of the top ten RWB countries
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: tbl-062-rwb-top-ten
+#| tbl-cap: "Vector list of the 10 countries with the best WPF Index in 2025"
+
+rwb <- readRDS(paste0(here::here(), "/data/chap011/rwb/rwb.rds"))
+
+vec_top_ten_2025 <- rwb |> 
+  dplyr::filter(year_n == 2025) |> 
+  dplyr::arrange(rank) |> 
+  dplyr::slice_head(n = 10) |> 
+  dplyr::pull(country_en) |> 
+  as.character()
+
+vec_top_ten_2025
+
+my_save_data_file("chap062", vec_top_ten_2025, "vec_top_ten_2025.rds")
+
+```
+
+
+::::
+:::::
+
+### Most basic bump chart
+
+::: {.column-screen}
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-062-most-basic-bump-chart}
+: Evolution of the rankings of the top ten countries in 2025
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: fig-062-most-basic-bump-chart
+#| fig-cap: "Evolution of the rankings of the top ten countries in 2025"
+#| fig.height: 9
+
+library(dplyr, warn.conflicts = FALSE)
+library(ggplot2)
+library(ggbump)
+
+# select top ten countries of 2025
+rwb_top_ten <- rwb |> 
+  dplyr::filter(country_en %in% vec_top_ten_2025)
+
+
+p <- ggplot(rwb_top_ten, 
+       aes(x = year_n, 
+           y = rank, 
+           color = country_en)) +
+  geom_bump()
+
+plotly::ggplotly(p)
+
+```
+
+::::
+:::::
+::: 
+
+
+## Glossary Entries {#unnumbered}
+
+```{r}
+#| label: glossary-table
+#| echo: false
+
+glossary_table()
+```
+
+------------------------------------------------------------------------
+
+## Session Info {.unnumbered}
+
+::: my-r-code
+::: my-r-code-header
+Session Info
+:::
+
+::: my-r-code-container
+```{r}
+#| label: session-info
+
+sessioninfo::session_info()
+```
+:::
+:::
