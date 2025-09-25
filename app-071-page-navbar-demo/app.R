@@ -63,7 +63,7 @@ ui <- page_navbar(
     nav_panel("Map", cards[[1]]),
     nav_panel("Chart", cards[[2]]),
     nav_panel("Country", cards[[3]]),
-    nav_item(tags$a("About", href = "https://peter.baumgartner.name", target="_blank"))
+    nav_item(tags$a("About", href = "https://rsf.org/en/index", target="_blank"))
 )
 
 server <-  function(input, output) {}
