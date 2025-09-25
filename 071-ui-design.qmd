@@ -145,6 +145,8 @@ I will stop here with the minimum content example. It works as a template for ne
 
 ## Variable & Countries
 
+::: {.column-screen}
+
 :::::{.my-r-code}
 :::{.my-r-code-header}
 :::::: {#cnj-071-variable-and-countries}
@@ -152,19 +154,126 @@ I will stop here with the minimum content example. It works as a template for ne
 ::::::
 :::
 ::::{.my-r-code-container}
+::: {#lst-071-variable-and-countries}
+
 ```{shinylive-r}
 #| standalone: true
-#| viewerHeight: 400
+#| viewerHeight: 500
 #| components: [editor, viewer]
-#| layout: vertical
+#| layout: horizontal
 
 ## file: app.R
 {{< include app-071-variable-countries/app.R >}}
 
 ```
 
+Choose one of the main variable (score or rank) and one of its component
+
+::: 
 ::::
 :::::
+
+:::
+
+## Navigation {#sec-071-navigation}
+
+
+### General consideration
+
+It turned out that an incremental construction of the user interface is not productive. To have one part of the UI working --- as I have succeeded in @lst-071-variable-and-countries --- does not prevent me from a complete overhaul of the navigation structure for other functionality. It is therefore better to start with the general UI structure and then to develop the dashboard functions for the different visualizations.
+
+For instance: To compare several indicators of one country is a complete different approach than to compare the development of one value in different countries. Together with other approaches (presenting a heat map of all countries, or displaying all relevant indicators for one specific country) it shows the need of a choice distinction at the global level of the dashboard.
+
+### Components {#sec-071-navigation-components}
+
+In @lst-071-variable-and-countries the user can choose between the main variable (score or rank) together with the global or component value. This UI has several disadvantages: 
+
+1. **Different number of years**: For the global values 23 years (2022-2025 with 2011 missing) but for the component values we have currently (2025) only four years (2022-2025). This small number of years is not a  problem by itself, but it indicates a different methodological approach and significance.
+2. **Components belong together**: From a methodological point of view it is more relevant, that the user could only choose one component at a time. But the five components are forming one global value and therefore their relation is important for the interpretation. For instance it is important to know which of the five components had the most influence for a given change.
+
+In my application transfer for line and bump charts with real data values (@sec-chap081) I have therefore limited the possible selection to just the global indicators of scores and ranks for a chosen set of countries.
+
+
+### Scores & ranks separated?
+
+It was a nice feature in @lst-071-variable-and-countries that I can change between score and rank charts immediately, without adding countries again. But in this case I haven't differentiated between the two different kinds of graphs: line chart versus bump chart.  For this reason it is better to separate scores from ranks visualizations. Independently of this UI separation it should also possible to keep the country names constant whenever a user changes between these two different types of visualizations.
+
+Another reason for the separation is the possibility to get another rank visualization by listing all countries by there ranks together with other information like rank values, flag, scores of global values and of component ranks. (At the moment there are only values for each components without a rank order of these component values. But these data shouldn't be difficult to compute.)
+
+Implementing this separation I have to abandon the idea of a navigation built on different visualization modes: maps, line charts and country information. Anyway, to distinguish modes is a idea far away from the everyday interests and practices of users. User want to know the scores, ranks etc. directly and not to think about the constitutional parts of abstract categories.
+
+### Missing features
+
+At the moment I am missing some other possible features of my planned RWB dashboard:
+
+- **Years**: At the moment users can only select values for all years but it would be nice to select also a specific year, a span of years or a selection of specific years.
+- **Regions**: Currently user can select years but it would be important also to compare countries of a specific region or to contrast different regions.
+
+
+::: {.callout-caution #cau-071-limit-country-numbers}
+###### Limit number of countries to display at once
+
+I have used as color palette the `Paired` {**RColowBrewer**} palette with 12 colors. Adding countries should therefore be limited with 12 lines of different colors. More than 12 lines are difficult to distinguish, so it is a good practice to limit the number of countries.
+
+But how is this limit to apply? I need to track down the number of countries chosen, because user can raise or reduce the number of countries. Besides of this functionality I would also need a message that explains why adding another countries after the limit of 12 is not allowed.
+:::
+
+### Ideas and plans
+
+#### `page_navbar()`
+
+At first I thought that a [tabset with pill navigation](https://shiny.posit.co/r/layouts/tabs/) at the top of the UI together with the appropriate UI components in the sidebar was the best solution. But reading the [article on dashboards](https://rstudio.github.io/bslib/articles/dashboards/index.html) it turned out that not a multi-panel but a [multi-page approach](https://rstudio.github.io/bslib/articles/dashboards/index.html#multi-page) is better suited for my use case. This navigation strcuture uses `page_navbar()` to call with a series of `nav_panel()` functions different pages or sections of the app.
+
+#### `nav_panel()`
+
+At first I had two problems to apply the `nav_panel()` function:
+
+1. I didn't know that I have to call the appropriate page/section within the `nav_panel()` function a second argument after the title.
+2. After I realized that the code for the page does not work on other places (e.g., in the `card()` function) I didn't know how to provide complex code as one argument of `nav_panel()`. The solution is to write a function outside of `nav_panel()` or even outside of `ui()` and `server()`.
+
+#### `sidebar()`
+
+Another difficulty arose with the need of adapting the content of the `sidebar()`. Normally the code for the sidebar in a `page_navbar()` navigation is valid for all different pages/sections. But with the `conditionalPanel()` function this code can be adapted to match the need of the appropriate page.
+
+#### `conditionalPanel()`
+
+But with `conditionalPanel()` I also had to overcome two difficulties:
+
+1. I didn't know how to build the connection between `conditionalPanel()` and `nav_panel()`. I learned that in both functions I had to use the same ID.
+2. I didn't know what the `===` sign mean. After an internet research it turned out that this is the equal-test in JavaScript. One has to use Javascript code to coincide `conditionalPanel()` with `nav_panel()`. For this reason one has to use a dot notation to call the input value of the `nav_panel()` ID (e.g., "input.nav") and not the common `$` operator. Because of the JavaScript notation one must also include the code into quotes and need therefore two quote levels (e.g., `"input.nav === 'Country'"`).
+
+
+## `page_navbar()` demo {#sec-071-page-navbar-demo}
+
+::: {.column-screen}
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-071-page-navbar-demo}
+: `page_navbar()` demonstration with dummy values
+::::::
+:::
+::::{.my-r-code-container}
+::: {#lst-071-page-navbar-demo}
+
+```{shinylive-r}
+#| standalone: true
+#| viewerHeight: 500
+#| components: [editor, viewer]
+#| layout: vertical
+
+## file: app.R
+{{< include app-071-page-navbar-demo/app.R >}}
+
+```
+
+Demo of the planned navigation structure. For details see @sec-071-navigation
+
+::: 
+::::
+:::::
+
+:::
 
 
 ## Glossary Entries {.unnumbered}

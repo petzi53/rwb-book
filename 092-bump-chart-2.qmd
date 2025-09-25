@@ -1,4 +1,4 @@
-# Bump Chart 2 {#sec-chap063}
+# Bump Chart 2 {#sec-chap092}
 
 
 ```{r}
@@ -15,7 +15,7 @@ library(plotly, warn.conflicts = FALSE)
 ```
 
 
-::::: {#obj-chap063}
+::::: {#obj-chap092}
 :::: {.my-objectives}
 ::: {.my-objectives-header}
 Chapter section list
@@ -41,13 +41,13 @@ The next bump chart has realized two adaptions:
 ::: {.column-screen}
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-063-bump-chart-line-point-sizes}
+:::::: {#cnj-092-bump-chart-line-point-sizes}
 : Evolution of the rankings of the top ten countries in 2025
 ::::::
 :::
 ::::{.my-r-code-container}
 ```{r}
-#| label: fig-063-bump-chart-line-point-sizes
+#| label: fig-092-bump-chart-line-point-sizes
 #| fig-cap: "Evolution of the rankings of the top ten countries in 2025"
 #| fig.height: 9
 
@@ -99,13 +99,13 @@ A third change is to get rid of the distracting gray background by choosing a si
 ::: {.column-screen}
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-063-bump-chart-scale-reverse-color-palette}
+:::::: {#cnj-092-bump-chart-scale-reverse-color-palette}
 : Evolution of the rankings of the top ten countries in 2025
 ::::::
 :::
 ::::{.my-r-code-container}
 ```{r}
-#| label: fig-063-bump-chart-scale-reverse-color-palette
+#| label: fig-092-bump-chart-scale-reverse-color-palette
 #| fig-cap: "Evolution of the rankings of the top ten countries in 2025"
 #| fig.height: 9
 

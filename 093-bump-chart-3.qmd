@@ -1,4 +1,4 @@
-# Bump Chart 3 {#sec-chap064}
+# Bump Chart 3 {#sec-chap093}
 
 
 ```{r}
@@ -15,7 +15,7 @@ library(plotly, warn.conflicts = FALSE)
 ```
 
 
-::::: {#obj-chap064}
+::::: {#obj-chap093}
 :::: {.my-objectives}
 ::: {.my-objectives-header}
 Chapter section list
@@ -44,13 +44,13 @@ As the labels are now situated at the side of starting and end points an extra l
 ::: {.column-screen}
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-064-bump-chart-text-labels}
+:::::: {#cnj-093-bump-chart-text-labels}
 : Evolution of the rankings of the top ten countries in 2025
 ::::::
 :::
 ::::{.my-r-code-container}
 ```{r}
-#| label: fig-064-bump-chart-text-labels
+#| label: fig-093-bump-chart-text-labels
 #| fig-cap: "Evolution of the rankings of the top ten countries in 2025"
 #| fig.height: 9
 
@@ -111,7 +111,7 @@ Additionally I changed the country labels to black labels as I think the colored
 
 :::::{.my-resource}
 :::{.my-resource-header}
-:::::: {#lem-064-second-axis-with-plotly}
+:::::: {#lem-093-second-axis-with-plotly}
 : How to provide a second axis with `plotly::ggplotly()`?
 ::::::
 :::
@@ -131,13 +131,13 @@ See also other similar StackOverflow posts:
 ::: {.column-screen}
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-064-bump-chart-second-axis}
+:::::: {#cnj-093-bump-chart-second-axis}
 : Evolution of the rankings of top eight countries
 ::::::
 :::
 ::::{.my-r-code-container}
 ```{r}
-#| label: fig-064-bump-chart-second-axis
+#| label: fig-093-bump-chart-second-axis
 #| fig-cap: "Evolution of the rankings of top eight countries"
 #| fig.height: 9
 
@@ -207,13 +207,13 @@ The following example therefore only shows how to add flags for {**ggplot2**} pl
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-064-adding-flags}
+:::::: {#cnj-093-adding-flags}
 : Adding Flags with {**ggplot2**}
 ::::::
 :::
 ::::{.my-r-code-container}
 ```{r}
-#| label: tbl-064-adding-flags
+#| label: tbl-093-adding-flags
 #| tbl-cap: "Adding flags"
 
 library(dplyr, warn.conflicts = FALSE)
@@ -244,13 +244,13 @@ rwb2 <- dplyr::left_join(
 ::: {.column-screen}
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-064-bump-chart-show-flags}
+:::::: {#cnj-093-bump-chart-show-flags}
 : Evolution of the rankings of top eight countries
 ::::::
 :::
 ::::{.my-r-code-container}
 ```{r}
-#| label: fig-064-bump-chart-show-flags
+#| label: fig-093-bump-chart-show-flags
 #| fig-cap: "Evolution of the rankings of top eight countries"
 #| fig.height: 9
 #| eval: false
@@ -284,7 +284,7 @@ The next code chunks display my Shiny solution where the user can choose between
 ::: {.column-screen}
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-064-bump-chart-shiny}
+:::::: {#cnj-093-bump-chart-shiny}
 : Show development of country ranking
 ::::::
 :::
@@ -296,7 +296,7 @@ The next code chunks display my Shiny solution where the user can choose between
 #| layout: vertical
 
 ## file: app.R
-{{< include app-064-bump-chart/app.R >}}
+{{< include app-093-bump-chart/app.R >}}
 
 ```
 

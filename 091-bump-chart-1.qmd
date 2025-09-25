@@ -1,4 +1,4 @@
-# Bump Chart 1 {#sec-chap062}
+# Bump Chart 1 {#sec-chap091}
 
 
 ```{r}
@@ -15,7 +15,7 @@ library(plotly, warn.conflicts = FALSE)
 ```
 
 
-::::: {#obj-chap062}
+::::: {#obj-chap091}
 :::: {.my-objectives}
 ::: {.my-objectives-header}
 Chapter section list
@@ -37,13 +37,13 @@ Measured parameters and methodology has changed during 2002 several times, so th
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-062-number-of-countries-per-year}
+:::::: {#cnj-091-number-of-countries-per-year}
 : Number of countries evaluated per year for the World Press Freedom Index (WPFI)
 ::::::
 :::
 ::::{.my-r-code-container}
 ```{r}
-#| label: tbl-062-number-of-countries-per-year
+#| label: tbl-091-number-of-countries-per-year
 #| tbl-cap: "Number of countries evaluated per year for the World Press Freedom Index (WPFI)"
 
 rwb <- readRDS(paste0(here::here(), "/data/chap011/rwb/rwb.rds"))
@@ -73,7 +73,7 @@ It is typical of bump charts that
 - In contrast to [line charts](https://r-charts.com/evolution/line-graph-ggplot2/), or [connected scatterplots](https://r-graph-gallery.com/connected-scatterplot.html) which show the evolution of the absolute values over time, bump charts indicate the changes in the relative position of the evaluated categories.
 - In contrast to a sorted [lollipop chart](https://r-charts.com/ranking/lollipop-chart-ggplot2/) which also contains a numerical variable and a categorical variable and shows the ranking situation through a comoarison of their length representing the absolute value in a given moment (year), bump charts show the changes in the relative position of the categories over time. 
 
-::: {.callout-important #imp-062-bump-charts-and-plotly}
+::: {.callout-important #imp-091-bump-charts-and-plotly}
 ###### Bump charts only available in {ggplot2}
 
 As the drawing of bump charts needs {**ggbump**}, a program of the {ggplot2} universe, I can't use the native `plotly::plot_ly()` approach but have to use `plotly::ggplotly()`.
@@ -81,7 +81,7 @@ As the drawing of bump charts needs {**ggbump**}, a program of the {ggplot2} uni
 
 :::::{.my-resource}
 :::{.my-resource-header}
-:::::: {#lem-062-bumpchart}
+:::::: {#lem-091-bumpchart}
 : Bump Chart
 ::::::
 :::
@@ -127,13 +127,13 @@ For a demonstration of bump charts I will take as data the top ten `r glossary("
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-062-rwb-top-ten}
+:::::: {#cnj-091-rwb-top-ten}
 : Data frame of the top ten RWB countries
 ::::::
 :::
 ::::{.my-r-code-container}
 ```{r}
-#| label: tbl-062-rwb-top-ten
+#| label: tbl-091-rwb-top-ten
 #| tbl-cap: "Vector list of the 10 countries with the best WPF Index in 2025"
 
 rwb <- readRDS(paste0(here::here(), "/data/chap011/rwb/rwb.rds"))
@@ -147,7 +147,7 @@ vec_top_ten_2025 <- rwb |>
 
 vec_top_ten_2025
 
-my_save_data_file("chap062", vec_top_ten_2025, "vec_top_ten_2025.rds")
+my_save_data_file("chap091", vec_top_ten_2025, "vec_top_ten_2025.rds")
 
 ```
 
@@ -162,13 +162,13 @@ my_save_data_file("chap062", vec_top_ten_2025, "vec_top_ten_2025.rds")
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-062-most-basic-bump-chart}
+:::::: {#cnj-091-most-basic-bump-chart}
 : Evolution of the rankings of the top ten countries in 2025
 ::::::
 :::
 ::::{.my-r-code-container}
 ```{r}
-#| label: fig-062-most-basic-bump-chart
+#| label: fig-091-most-basic-bump-chart
 #| fig-cap: "Evolution of the rankings of the top ten countries in 2025"
 #| fig.height: 9
 

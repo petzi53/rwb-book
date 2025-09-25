@@ -1,0 +1,81 @@
+# Radar chart  {#sec-chap101}
+
+
+```{r}
+#| label: setup
+#| results: hold
+#| include: false
+
+base::source(file = "R/helper.R")
+library(glossary)
+glossary::glossary_path("../glossary-pb/glossary.yml")
+```
+
+
+::::: {#obj-chap101}
+:::: {.my-objectives}
+::: {.my-objectives-header}
+Chapter section list
+:::
+
+::: {.my-objectives-container}
+
+
+:::
+::::
+:::::
+
+
+::: {.column-screen}
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-101-radar-chart-shiny}
+: Show components in radar chart
+::::::
+:::
+::::{.my-r-code-container}
+```{shinylive-r}
+#| standalone: true
+#| viewerHeight: 800
+#| components: [editor, viewer]
+#| layout: vertical
+
+## file: app.R
+{{< include app-101-radar-chart-1/app.R >}}
+
+```
+
+::::
+:::::
+:::
+
+
+
+
+## Glossary Entries {#unnumbered}
+
+```{r}
+#| label: glossary-table
+#| echo: false
+
+glossary_table()
+```
+
+------------------------------------------------------------------------
+
+## Session Info {.unnumbered}
+
+::: my-r-code
+::: my-r-code-header
+Session Info
+:::
+
+::: my-r-code-container
+```{r}
+#| label: session-info
+
+sessioninfo::session_info()
+```
+:::
+:::
+

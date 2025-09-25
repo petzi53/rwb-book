@@ -33,6 +33,7 @@ book:
         - 091-bump-chart-1.qmd
         - 092-bump-chart-2.qmd
         - 093-bump-chart-3.qmd
+        - 101-radar-chart.qmd
 
 bibliography:
     - references.bib
