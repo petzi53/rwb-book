@@ -5,7 +5,7 @@
     library(shiny)
     library(shinythemes)
     library(bslib)
-## })) # these suppresion does not work with  shinylive-r
+## })) # these suppressions do not work with  shinylive-r
 
 sidebar_map <- layout_sidebar(
     sidebar = "Controls for map"

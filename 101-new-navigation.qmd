@@ -1,4 +1,4 @@
-# Radar chart  {#sec-chap101}
+# New Navigation  {#sec-chap101}
 
 
 ```{r}
@@ -30,7 +30,7 @@ Chapter section list
 :::::{.my-r-code}
 :::{.my-r-code-header}
 :::::: {#cnj-101-radar-chart-shiny}
-: Show components in radar chart
+: Show line charts in new navigational structure
 ::::::
 :::
 ::::{.my-r-code-container}
@@ -41,7 +41,7 @@ Chapter section list
 #| layout: vertical
 
 ## file: app.R
-{{< include app-101-radar-chart-1/app.R >}}
+{{< include app-101-page-navbar-line-chart/app.R >}}
 
 ```
 
