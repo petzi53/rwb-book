@@ -3,9 +3,9 @@
 ::: {.callout-note style="color: blue;"}
 #### This is work in progress
 
-I have finished approximately 10%. This is just a rough guess, derived from my @sec-project-plan.
+I have finished approximately 30%. This is just a rough guess, derived from my @sec-project-plan.
 
-Currently I am working on plotting the map for the RWB datasets 2022-2025.
+Currently I am working on setting up a new navigational structure in @sec-chap101. I try to implement this new user interface with the different --- already prepared --- visualizations: line charts for score values, bump charts for rank values, and maps for the country distribution of score values.
 
 :::
 
